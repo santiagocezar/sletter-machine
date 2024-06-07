@@ -1,0 +1,143 @@
+---
+import smears from '../assets/smears.svg?raw'
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Astro</title>
+	</head>
+	<body>
+		<!--<div hidden>
+			<Fragment set:html={smears} />
+		</div>-->
+		<slot-machine>
+			<div class="slot">ZCGJLOUV</div>
+			<div class="slot">SPIHADEFMWNT</div>
+			<div class="slot">XRQÑBKY</div>
+		</slot-machine>
+		<script src="../slot_machine.ts" />
+	</body>
+</html>
+
+<style>
+* {
+	margin: 0;
+	padding: 0;
+}
+html, body {
+	height: 100%;
+}
+
+body {
+	display: flex
+}
+
+[hidden] {
+	display: none;
+}
+
+slot-machine {
+	display: flex;
+	width: 100%;
+	height: 100%;
+	background-image: linear-gradient(to bottom, maroon, crimson, maroon);
+	align-items: center;
+	justify-content: center;
+	gap: 2rem;
+}
+
+
+@keyframes fast {
+	0% {
+		--smear: url("/smears.svg#smear1");
+	}
+	17% {
+		--smear: url("/smears.svg#smear2");
+	}
+	33% {
+		--smear: url("");
+	}
+	50% {
+		--smear: url("/smears.svg#smear3");
+	}
+	66% {
+		--smear: url("/smears.svg#smear1");
+	}
+	83% {
+		--smear: url("");
+	}
+}
+
+@keyframes misalign {
+	0% {
+		background-position-y: -5px;
+	}
+	25% {
+		background-position-y: 5px;
+	}
+	50% {
+		background-position-y: -2px;
+	}
+	75% {
+		background-position-y: 2px;
+	}
+}
+
+@keyframes stop {
+	0% {
+		background-position-y: -100px;
+		translate: 0 -20%;
+	}
+	100% {
+		background-position-y: 0;
+		translate: 0 0;
+	}
+}
+
+@keyframes stop-bg {
+	0% {
+		background-position-y: -10vh;
+	}
+	100% {
+		background-position-y: 0;
+	}
+}
+
+slot-machine .slot {
+	width: 40vh;
+	height: 40vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	--smear: url("");
+	background-image: var(--smear), linear-gradient(to bottom, #444 0%, #aaa 5%, #fff, #aaa 95%, #444 100%);
+	background-size: contain;
+	border: 1vh solid midnightblue;
+	border-radius: 2vh;
+	box-shadow: inset 0 1vh 4vh 1vh  #210a,
+		0 -.5vh 2vh  #210a,
+		0 .5vh 2vh  #fffa;
+}
+
+slot-machine .slot :global(span) {
+	font-size: 25vh;
+	font-family: Poppins;
+	font-weight: 700;
+}
+
+slot-machine .slot[stop] :global(span) {
+	animation: stop .3s cubic-bezier(.44,1.14,.7,1.09);
+}
+slot-machine .slot[stop] {
+	animation: stop-bg .3s cubic-bezier(.44,1.14,.7,1.09);
+}
+
+slot-machine .slot:not([stop]) {
+	animation: fast .2s infinite, misalign .1333s infinite step-start;
+}
+
+</style>
