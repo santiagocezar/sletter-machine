@@ -1,38 +1,41 @@
 <script>
-	const slots = [
-		"ZCGJLOUV".split(''),
-		"SPIHADEFMWNT".split(''),
-		"XRQÑBKY".split(''),
-	]
 
-	let currentSlot = $state(0)
-	let slotValues = $state(slots.map(_ => null))
+import smears from '$lib/assets/smears.svg'
 
-	function stop() {
-		if (currentSlot == slots.length) {
-			currentSlot = 0
-		} else {
-			const bag = slots[currentSlot]
-			slotValues[currentSlot] = bag[Math.floor(Math.random() * bag.length)]
-			currentSlot++
-		}
+const slots = [
+	"ZCGJLOUV".split(''),
+	"SPIHADEFMWNT".split(''),
+	"XRQÑBKY".split(''),
+]
+
+let currentSlot = $state(0)
+let slotValues = $state(slots.map(_ => null))
+
+function stop() {
+	if (currentSlot == slots.length) {
+		currentSlot = 0
+	} else {
+		const bag = slots[currentSlot]
+		slotValues[currentSlot] = bag[Math.floor(Math.random() * bag.length)]
+		currentSlot++
 	}
+}
 
-	$effect(() => {
-		const onSpace = e => (e.code == "Space" && stop())
-		document.addEventListener("keypress", onSpace)
-		return () => {
-			document.removeEventListener("keypress", onSpace)
-		}
-	})
+$effect(() => {
+	const onSpace = e => (e.code == "Space" && stop())
+	document.addEventListener("keypress", onSpace)
+	return () => {
+		document.removeEventListener("keypress", onSpace)
+	}
+})
 
 </script>
 
 <svelte:head>
-	<link rel="preload" as="image" href="smears.svg">
-	<link rel="preload" as="image" href="smears.svg#smear1">
-	<link rel="preload" as="image" href="smears.svg#smear2">
-	<link rel="preload" as="image" href="smears.svg#smear3">
+	<link rel="preload" as="image" href={smears}>
+	<link rel="preload" as="image" href={smears + '#smear1'}>
+	<link rel="preload" as="image" href={smears + '#smear2'}>
+	<link rel="preload" as="image" href={smears + '#smear3'}>
 </svelte:head>
 
 <div class="slot-machine">
@@ -60,19 +63,19 @@
 
 @keyframes fast {
 	0% {
-		--smear: url("smears.svg#smear1");
+		--smear: url("$lib/assets/smears.svg#smear1");
 	}
 	17% {
-		--smear: url("smears.svg#smear2");
+		--smear: url("$lib/assets/smears.svg#smear2");
 	}
 	33% {
 		--smear: url("");
 	}
 	50% {
-		--smear: url("smears.svg#smear3");
+		--smear: url("$lib/assets/smears.svg#smear3");
 	}
 	66% {
-		--smear: url("smears.svg#smear1");
+		--smear: url("$lib/assets/smears.svg#smear1");
 	}
 	83% {
 		--smear: url("");
