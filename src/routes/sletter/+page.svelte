@@ -1,53 +1,53 @@
----
-import smears from 'assets/smears.svg?raw'
----
+<script>
+	const slots = [
+		"ZCGJLOUV".split(''),
+		"SPIHADEFMWNT".split(''),
+		"XRQÑBKY".split(''),
+	]
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<link rel="preconnect" href="https://fonts.googleapis.com">
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-		<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
-		<link rel="preload" as="image" href="smears.svg">
-		<link rel="preload" as="image" href="smears.svg#smear1">
-		<link rel="preload" as="image" href="smears.svg#smear2">
-		<link rel="preload" as="image" href="smears.svg#smear3">
-		<title>Astro</title>
-	</head>
-	<body>
-		<!--<div hidden>
-			<Fragment set:html={smears} />
-		</div>-->
-		<slot-machine>
-			<div class="slot">ZCGJLOUV</div>
-			<div class="slot">SPIHADEFMWNT</div>
-			<div class="slot">XRQÑBKY</div>
-		</slot-machine>
-		<script src="../slot_machine.ts" />
-	</body>
-</html>
+	let currentSlot = $state(0)
+	let slotValues = $state(slots.map(_ => null))
+
+	function stop() {
+		if (currentSlot == slots.length) {
+			currentSlot = 0
+		} else {
+			const bag = slots[currentSlot]
+			slotValues[currentSlot] = bag[Math.floor(Math.random() * bag.length)]
+			currentSlot++
+		}
+	}
+
+	$effect(() => {
+		const onSpace = e => (e.code == "Space" && stop())
+		document.addEventListener("keypress", onSpace)
+		return () => {
+			document.removeEventListener("keypress", onSpace)
+		}
+	})
+
+</script>
+
+<svelte:head>
+	<link rel="preload" as="image" href="smears.svg">
+	<link rel="preload" as="image" href="smears.svg#smear1">
+	<link rel="preload" as="image" href="smears.svg#smear2">
+	<link rel="preload" as="image" href="smears.svg#smear3">
+</svelte:head>
+
+<div class="slot-machine">
+	{#each slotValues as slot, i}
+		{#if currentSlot > i}
+			<div stop class="slot"><span>{slot}</span></div>
+		{:else}
+			<div class="slot"></div>
+		{/if}
+	{/each}
+</div>
 
 <style>
-* {
-	margin: 0;
-	padding: 0;
-}
-html, body {
-	height: 100%;
-}
 
-body {
-	display: flex
-}
-
-[hidden] {
-	display: none;
-}
-
-slot-machine {
+.slot-machine {
 	display: flex;
 	width: 100%;
 	height: 100%;
@@ -114,7 +114,7 @@ slot-machine {
 	}
 }
 
-slot-machine .slot {
+.slot-machine .slot {
 	width: 40vh;
 	height: 40vh;
 	display: flex;
@@ -130,20 +130,20 @@ slot-machine .slot {
 		0 .5vh 2vh  #fffa;
 }
 
-slot-machine .slot :global(span) {
+.slot-machine .slot span {
 	font-size: 25vh;
 	font-family: Poppins;
 	font-weight: 700;
 }
 
-slot-machine .slot[stop] :global(span) {
+.slot-machine .slot[stop] span {
 	animation: stop .3s cubic-bezier(.44,1.14,.7,1.09);
 }
-slot-machine .slot[stop] {
+.slot-machine .slot[stop] {
 	animation: stop-bg .3s cubic-bezier(.44,1.14,.7,1.09);
 }
 
-slot-machine .slot:not([stop]) {
+.slot-machine .slot:not([stop]) {
 	animation: fast .2s infinite, misalign .1333s infinite step-start;
 }
 
