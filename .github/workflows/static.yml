@@ -24,7 +24,8 @@ jobs:
   # Single deploy job since we're just deploying
   deploy:
     environment:
-      BASE_PATH: '/${{ github.event.repository.name }}'
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -43,6 +44,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Build
+        env:
+          BASE_PATH: '/${{ github.event.repository.name }}'
         run: pnpm build
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -50,7 +53,7 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           # Upload dist folder
-          path: 'build/'
+          path: './dist'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
