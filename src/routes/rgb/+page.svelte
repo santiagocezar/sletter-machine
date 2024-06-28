@@ -21,8 +21,10 @@ let singleColor = $derived.by(() => {
 
 $effect(() => {
 	const onSpace = e => {
-        light = !light
-        e.preventDefault()
+        if (e.code == "Space") {
+            e.preventDefault()
+            light = !light
+        }
 	}
 	document.addEventListener("keypress", onSpace)
 	return () => {
