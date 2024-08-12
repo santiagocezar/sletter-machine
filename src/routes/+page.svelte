@@ -13,10 +13,19 @@ import logo from '$lib/assets/logo.svg?url'
 <main>
     <h1>Juegos educativos</h1>
     <div class="cards">
-        <a href="/games/color-slots">Colores al azar</a>
-        <a href="/games/letter-slots">Letras al azar</a>
-        <a href="/games/rgb">Colores primarios de la luz (RGB)</a>
-        <a href="/games/rgb-check">Comparar valores en RGB</a>
+        <a href="/games/color-slots">
+            <h2>Colores al azar</h2>
+            <p>Selector de un trio de colores de complejidad creciente, respecto a los valores de Rojo, Verde y Azul</p>
+        </a>
+        <a href="/games/letter-slots">
+            <h2>Letras al azar</h2>
+        </a>
+        <a href="/games/rgb">
+            <h2>Colores primarios de la luz (RGB)</h2>
+        </a>
+        <a href="/games/rgb-check">
+            <h2>Comparar valores en RGB</h2>
+        </a>
     </div>
 </main>
 
@@ -35,18 +44,17 @@ header {
 }
 
 .cards {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
     gap: 1rem;
 
     a {
         .card();
         --color: #4156fd;
         padding: .25em 1em;
-        font-size: 2em;
+        font-size: 1.5em;
         color: white;
         text-decoration: none;
-        flex: 1 1 10rem;
     }
 }
 

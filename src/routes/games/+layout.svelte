@@ -1,13 +1,13 @@
 <script>
-import logo from '$lib/assets/logo-on-purple.svg'
+import logo from '$lib/assets/logo.svg'
 </script>
 
 <div class="root">
 <header>
-    <img src={logo} alt="Eduactive logo" height="28" />
-    <a class="btn">
-        Otros juegos
+    <a href="/">
+        <img src={logo} alt="Eduactive logo" />
     </a>
+    Hola
 </header>
 
 <slot></slot>
@@ -18,18 +18,24 @@ import logo from '$lib/assets/logo-on-purple.svg'
 .root {
     display: grid;
     grid-template-columns: 1fr;
-    grid-template-rows: 48px 1fr;
+    grid-template-rows: 2rem 1fr;
     width: 100%;
+    height: 100%;
+}
+
+a {
+    display: block;
+    height: 1.5rem;
+}
+img {
     height: 100%;
 }
 
 header {
     display: flex;
     gap: 1rem;
-    padding: 0 1rem;
+    padding: .25rem 1rem;
     align-items: center;
-    background-color: #654ac6;
-    background-image: linear-gradient(to bottom, transparent, #0004 95%, #000a 100%);
 }
 
 </style>

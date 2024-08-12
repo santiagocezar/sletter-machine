@@ -135,7 +135,7 @@ $effect(() => {
 
 .slot-machine .slot span {
 	font-size: 25vh;
-	font-family: Poppins;
+	font-family: 'Rubik';
 	font-weight: 700;
 }
 

@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 
 import smears from '$lib/assets/smears.svg'
 
@@ -9,7 +9,7 @@ const slots = [
 ]
 
 let currentSlot = $state(0)
-let slotValues = $state(slots.map(_ => null))
+let slotValues = $state(slots.map(_ => "#000"))
 
 let attempts = $state(0)
 
@@ -25,7 +25,7 @@ function stop() {
 }
 
 $effect(() => {
-	const onSpace = e => (e.code == "Space" && stop())
+	const onSpace = (e: KeyboardEvent) => (e.code == "Space" && stop())
 	document.addEventListener("keypress", onSpace)
 	return () => {
 		document.removeEventListener("keypress", onSpace)
@@ -51,34 +51,61 @@ $effect(() => {
 {/each}
 </div>-->
 
-<div class="slot-machine">
-	{#each slotValues as slot, i}
-		{#if currentSlot > i}
-			<div stop class="slot">
-				<span class="color" style={"--c: " + slot}>
-				</span>
-			</div>
-		{:else}
-			<div class="slot"></div>
-		{/if}
-	{/each}
-	<!--<p class="waring">
-		Advertenica: No pueden ganar.
-		{attempts > 3 ? "Posta, literalmente no les va a tocar dos veces el mismo color." : ""}
-		{attempts > 6 ? "¡baastaa! :(" : ""}
-	</p>-->
-</div>
+<main>
+	<div class="slot-machine">
+		{#each slotValues as slot, i}
+			{#if currentSlot > i}
+				<div data-stop class="slot">
+					<span class="color" style={"--c: " + slot}>
+					</span>
+				</div>
+			{:else}
+				<div class="slot"></div>
+			{/if}
+		{/each}
+	</div>
+	<button onclick={stop} class="btn">
+		{currentSlot == slots.length ? "Reiniciar" : "Detener"} (barra espaciadora)
+	</button>
+</main>
 
-<style>
+<style lang="less">
 
 .slot-machine {
+	position: relative;
 	display: flex;
-	width: 100%;
-	height: 100%;
 	background-image: linear-gradient(to bottom, #bbb, #fff, #bbb);
 	align-items: center;
 	justify-content: center;
 	gap: 2rem;
+	padding: 2rem;
+	margin: 2rem;
+	border-radius: 2rem;
+}
+
+.slot {
+	width: 20%;
+	aspect-ratio: 1 / 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	--smear: url("");
+	background-image: var(--smear), linear-gradient(to bottom, #aaa 0%, #ddd 5%, #fff, #ddd 95%, #aaa 100%);
+	background-size: contain;
+	border: 2px solid gray;
+	border-radius: 5%;
+	box-shadow: inset 0 1rem 4rem 1rem  #2104,
+		0 -.5vh 2vh  #2104,
+		0 .5vh 2vh  #fff4;
+
+	animation: fast .2s infinite, misalign .1333s infinite step-start;
+	&[data-stop] {
+		animation: stop-bg .3s cubic-bezier(.44,1.14,.7,1.09);
+
+		span {
+			animation: stop .3s cubic-bezier(.44,1.14,.7,1.09);
+		}
+	} 
 }
 
 .color {
@@ -88,7 +115,12 @@ $effect(() => {
 	border: 1vh solid black;
 	border-radius: 100%;
 	background-color: var(--c);
-	box-shadow: 0 1vh 20vh var(--c);
+	box-shadow: 0 1rem 10rem var(--c);
+}
+
+.btn {
+	font-size: 1.5rem;
+	margin: 0 auto;
 }
 
 @keyframes fast {
@@ -145,39 +177,6 @@ $effect(() => {
 	100% {
 		background-position-y: 0;
 	}
-}
-
-.slot-machine .slot {
-	width: 40vh;
-	height: 40vh;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	--smear: url("");
-	background-image: var(--smear), linear-gradient(to bottom, #aaa 0%, #ddd 5%, #fff, #ddd 95%, #aaa 100%);
-	background-size: contain;
-	border: 1vh solid gray;
-	border-radius: 2vh;
-	box-shadow: inset 0 1vh 4vh 1vh  #2104,
-		0 -.5vh 2vh  #2104,
-		0 .5vh 2vh  #fff4;
-}
-
-.slot-machine .slot span {
-	font-size: 25vh;
-	font-family: Poppins;
-	font-weight: 700;
-}
-
-.slot-machine .slot[stop] span {
-	animation: stop .3s cubic-bezier(.44,1.14,.7,1.09);
-}
-.slot-machine .slot[stop] {
-	animation: stop-bg .3s cubic-bezier(.44,1.14,.7,1.09);
-}
-
-.slot-machine .slot:not([stop]) {
-	animation: fast .2s infinite, misalign .1333s infinite step-start;
 }
 
 </style>
