@@ -1,4 +1,5 @@
 <script>
+import { base } from '$app/paths';
 import logo from '$lib/assets/logo.svg?url'
 </script>
 
@@ -6,25 +7,27 @@ import logo from '$lib/assets/logo.svg?url'
     <title>eduACTIVO</title>
 </svelte:head>
 
-<header>
-    <img src={logo} alt="Eduactive logo" height="112" />
-</header>
 
 <main>
-    <h1>Juegos educativos</h1>
+    <img class="logo" src={logo} alt="Eduactive logo" height="112" />
+    <h1>Experiencias educativas interactivas</h1>
+    <br>
     <div class="cards">
-        <a href="/games/color-slots">
-            <h2>Colores al azar</h2>
-            <p>Selector de un trio de colores de complejidad creciente, respecto a los valores de Rojo, Verde y Azul</p>
+        <a href="{base}/games/color-slots">
+            <h2>Máquina tragacolores</h2>
+            <p>Selecciona de un trio de colores aleatorios, cada uno con valores de rojo, verde y azul más complejos que el anterior</p>
         </a>
-        <a href="/games/letter-slots">
-            <h2>Letras al azar</h2>
+        <a href="{base}/games/letter-slots">
+            <h2>Máquina tragaletras</h2>
+            <p>Selecciona de tres letras aleatorias, donde la forma de cada una es más dificil de dibujar que la anterior</p>
         </a>
-        <a href="/games/rgb">
-            <h2>Colores primarios de la luz (RGB)</h2>
+        <a href="{base}/games/rgb">
+            <h2>Componentes de la luz (RGB)</h2>
+            <p>Permite formar distintos colores cambiando las cantidades de rojo, verde y azul. Muestra la mezcla aditiva de los colores de la luz.</p>
         </a>
-        <a href="/games/rgb-check">
-            <h2>Comparar valores en RGB</h2>
+        <a href="{base}/games/rgb-check">
+            <h2>Comparar valores RGB</h2>
+            <p>Permite comparar dos colores distintos a un color seleccionado de forma aleatoria, ¡y definir cual está más cerca! </p>
         </a>
     </div>
 </main>
@@ -32,29 +35,53 @@ import logo from '$lib/assets/logo.svg?url'
 <style lang="less">
 @import "$lib/style/card.less";
 
-header {
-    display: grid;
-    place-items: center;
-    height: 4rem;
-    width: 100%;
+.logo {
+    height: 2.5rem;
+}
 
-    img {
-        height: 100%;
-    }
+main {
+    background-color: white;
+    padding: 1rem 2rem;
+    max-width: 80rem;
+    height: 100%;
+    margin: 0 auto;
+    box-shadow: 0 0 4rem #ddd;
+}
+
+hr {
+    border-top: 1px gray dashed;
+}
+
+h1 {
+    font-size: large;
 }
 
 .cards {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+    grid-template-rows: repeat(auto-fill, auto 1fr);
+    gap: .5rem;
 
     a {
         .card();
-        --color: #4156fd;
-        padding: .25em 1em;
-        font-size: 1.5em;
-        color: white;
+        --color: #f8f8ff;
+        display: grid;
+        grid-template-rows: subgrid;
+        padding: 1rem 1rem;
         text-decoration: none;
+        grid-row: span 2;
+        h2 {
+            color: #4156fd;
+            font-weight: 700;
+            line-height: 1;
+            font-size: 1.5rem;
+            align-self: center;
+            text-wrap: balance;
+            text-transform: uppercase;
+        }
+        p {
+        }
+
     }
 }
 

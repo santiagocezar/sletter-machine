@@ -1,13 +1,13 @@
 <script>
+import { base } from '$app/paths';
 import logo from '$lib/assets/logo.svg'
 </script>
 
 <div class="root">
 <header>
-    <a href="/">
+    <a href={base}>
         <img src={logo} alt="Eduactive logo" />
     </a>
-    Hola
 </header>
 
 <slot></slot>
@@ -25,7 +25,7 @@ import logo from '$lib/assets/logo.svg'
 
 a {
     display: block;
-    height: 1.5rem;
+    height: 2rem;
 }
 img {
     height: 100%;

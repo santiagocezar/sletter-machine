@@ -20,7 +20,7 @@ let singleColor = $derived.by(() => {
 })
 
 $effect(() => {
-	const onSpace = e => {
+	const onSpace = (e: KeyboardEvent) => {
         if (e.code == "Space") {
             e.preventDefault()
             light = !light
@@ -33,34 +33,33 @@ $effect(() => {
 })
 </script>
 
-<div class="rgb" {light} style={`--c: ${color};`}>
-    {#each components as comp, i}
-        <div class="bulb" style={`--c: ${singleColor[i]};`}>
-            <input type="number" min="0" max="255" bind:value={components[i]}>
-        </div>
-    {/each}
+<main>
+    <div class="rgb view-container" data-light={light} style={`--c: ${color};`}>
+        {#each components as comp, i}
+            <div class="bulb" style={`--c: ${singleColor[i]};`}>
+                <input type="number" min="0" max="255" bind:value={components[i]}>
+            </div>
+        {/each}
+    </div>
+	<button onclick={() => light = !light} class="btn">
+		{light ? "Encender" : "Apagar"} (barra espaciadora)
+	</button>
+</main>
 
-</div>
- <!--   {#each singleColor as c}
-        <p>{c}</p>
-    {/each}
-
-    <p>{color}</p>-->
-
-<style>
+<style lang="less">
 .rgb {
     flex-grow: 1;
     display: grid;
     grid-template-rows: auto auto;
     place-content: center;
     place-items: center;
-    gap: 0 4vh;
+    gap: 0 4vmin;
     background-color: black;
     transition: background-color .2s ease;
     overflow: hidden;
 }
 
-.rgb[light="true"] {
+.rgb[data-light="true"] {
     background-color: white;
 }
 
@@ -68,58 +67,60 @@ $effect(() => {
     display: grid;
     place-items: center;
     grid-row-start: 2;
-    width: 30vh;
-    height: 30vh;
+    width: 30vmin;
+    height: 30vmin;
     border-radius: 100%;
     background-color: black;
-/*     background-image: radial-gradient(#fff, transparent); */
-/*     background-blend-mode: overlay; */
+    
+    input {
+        all: unset;
+        font-family: monospace;
+        width: 4ch;
+        border-radius: 1vmin;
+        background-color: white;
+        -moz-appearance: textfield;
+        appearance: textfield;
+        z-index: 2;
+        font-size: 5vmin;
+        box-shadow: inset 0 1vmin 1vmin #0002;
+        border: .2vmin solid color-mix(in lab, black 20%, var(--c));
+        border-top-width: .4vmin;
+        text-align: center;
+        &::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+        }
+    }
+    
+    input, &::before {
+        grid-row-start: 1;
+        grid-column-start: 1;
+    }
+
+    &::before {
+        content: "";
+        pointer-events: none;
+        width: 100%;
+        height: 100%;
+        border-radius: 100%;
+        background-image: radial-gradient(var(--c), var(--c), transparent, transparent);
+        mix-blend-mode: screen;
+        background-blend-mode: overlay;
+        transform: scale(8);
+        transition: transform .2s ease;
+        
+        .rgb[data-light="true"] & {
+            transform: scale(1.5);
+        }
+    }
+
+    &:first-child {
+        grid-row-start: 1;
+        grid-column: span 2;
+    }
 }
 
-.bulb input {
-    all: unset;
-    font-family: monospace;
-    width: 4ch;
-    border-radius: 1vh;
-    background-color: white;
-    -moz-appearance: textfield;
-    appearance: textfield;
-    z-index: 2;
-    font-size: 5vh;
-    box-shadow: 0 1vh 2vh #0004;
-    text-align: center;
-}
-.bulb input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
+.btn {
+	margin: 0 auto;
 }
 
-.bulb input,
-.bulb::before {
-    grid-row-start: 1;
-    grid-column-start: 1;
-}
-.bulb::before {
-    content: "";
-    pointer-events: none;
-    width: 100%;
-    height: 100%;
-    border-radius: 100%;
-    background-image: radial-gradient(var(--c), var(--c), transparent, transparent);
-    mix-blend-mode: screen;
-    background-blend-mode: overlay;
-    transform: scale(8);
-    transition: transform .2s ease;
-}
-.rgb[light="true"] .bulb::before {
-    transform: scale(1.5);
-}
-
-.bulb:first-child {
-    grid-row-start: 1;
-    grid-column: span 2;
-}
-
-.rgb {
-    flex-grow: 1;
-}
 </style>
