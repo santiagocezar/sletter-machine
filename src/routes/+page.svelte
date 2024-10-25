@@ -29,6 +29,10 @@ import logo from '$lib/assets/logo.svg?url'
             <h2>Comparar valores RGB</h2>
             <p>Permite comparar dos colores distintos a un color seleccionado de forma aleatoria, ¡y definir cual está más cerca! </p>
         </a>
+        <a href="{base}/games/diff-robot">
+            <h2>Transmisión diferencial</h2>
+            <p>Simular un robot con motores de transmisión diferencial</p>
+        </a>
     </div>
 </main>
 
