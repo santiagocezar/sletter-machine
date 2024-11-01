@@ -11,6 +11,8 @@ let powerX = 0, powerY = 0;
 let baseSize = 0;
 let moving = false;
 
+let penDown = $state(true)
+
 let speedL = 0, speedR = 0;
 let robotX = 0, robotY = 0;
 let robotPhi = 0;
@@ -151,10 +153,12 @@ function update(ctx: CanvasRenderingContext2D, paintCtx: CanvasRenderingContext2
     robotX += speedX;
     robotY += speedY;
 
-    paintCtx.beginPath()
-    paintCtx.moveTo(robotX, robotY)
-    paintCtx.lineTo(robotX + speedX, robotY + speedY)
-    paintCtx.stroke()
+    if (penDown) {
+        paintCtx.beginPath()
+        paintCtx.moveTo(robotX, robotY)
+        paintCtx.lineTo(robotX + speedX, robotY + speedY)
+        paintCtx.stroke()
+    }
 
     ctx.save()
     ctx.translate(robotX, robotY)
@@ -214,14 +218,21 @@ function runCode() {
     run();
 }
 
+function reset() {
+    robotX = canvas.width / 2;
+    robotY = canvas.height / 2;
+    robotPhi = 0;
+
+    paintCanvas.getContext("2d").clearRect(0, 0, paintCanvas.width, paintCanvas.height)
+}
+
 $effect(() => {
     robotX = canvas.width / 2;
     robotY = canvas.height / 2;
-    update(
+    requestAnimationFrame(() => update(
         canvas.getContext("2d"),
         paintCanvas.getContext("2d")
-    )
-
+    ))
 })
 </script>
 
@@ -253,7 +264,16 @@ $effect(() => {
                 </div>
             </div>
         </div>
-        <button onclick={runCode}>Correr</button>
+        <div>
+            <button onclick={runCode}>Correr</button>
+            <div>
+                <label>
+                    <input type="checkbox" bind:checked={penDown}>
+                    Activar lapiz
+                </label>
+            </div>
+            <button class="btn" onclick={reset} >Reiniciar</button>
+        </div>
     </div>
     <pre>
         <code>
@@ -284,6 +304,11 @@ main {
     border-radius: 0;
     overflow: visible;
 }
+.tools {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
 .joystick {
     position: relative;
     aspect-ratio: 1 / 1;
@@ -311,5 +336,8 @@ main {
         left: 50%;
         top: 50%;
     }
+}
+.btn {
+    margin: 0 auto;
 }
 </style>
