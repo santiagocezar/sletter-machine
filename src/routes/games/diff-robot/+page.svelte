@@ -1,5 +1,6 @@
 <script lang="ts">
 import Blockly from "$lib/components/Blockly.svelte";
+import Interpreter from "js-interpreter";
 
 let ball: HTMLElement = $state();
 let base: HTMLElement = $state();
@@ -186,9 +187,31 @@ function setMotor(side: "LEFT" | "RIGHT", power: number) {
     else powerY = power / 100
 }
 
+function initApi(interpreter: Interpreter, globalObject: any) {
+  interpreter.setProperty(globalObject, 'setMotor',
+      interpreter.createNativeFunction(setMotor));
+  const wait = interpreter.createAsyncFunction(
+    function (time: number, callback: () => void) {
+      // Delay the call to the callback.
+      setTimeout(callback, time);
+    },
+  );
+  interpreter.setProperty(globalObject, 'wait', wait);
+}
+
 function runCode() {
     setMotor
-    eval(code)
+    const interpreter = new Interpreter(code, initApi);
+    function run() {
+        if (interpreter.run()) {
+            // Execution is currently blocked by some async call.
+            // Try again later.
+            requestAnimationFrame(run)
+        } else {
+            console.log("listo!")
+        }
+    }
+    run();
 }
 
 $effect(() => {

@@ -50,6 +50,22 @@ $effect(() => {
             "previousStatement": null,
             "nextStatement": null,
             "colour": 30
+        },
+        {
+            "type": "clock_wait",
+            "tooltip": "",
+            "helpUrl": "",
+            "message0": "esperar %1 milisegundos",
+            "args0": [
+                {
+                    "type": "input_value",
+                    "name": "TIME",
+                    "check": "Number"
+                },
+            ],
+            "previousStatement": null,
+            "nextStatement": null,
+            "colour": 30
         }
     ])
     javascriptGenerator.forBlock['motor_set_power'] = function(block: Block, generator: JavascriptGenerator) {
@@ -57,7 +73,12 @@ $effect(() => {
         // TODO: change Order.ATOMIC to the correct operator precedence strength
         const power = generator.valueToCode(block, 'POWER', Order.ATOMIC);
 
-        return `setMotor("${side}", ${power})`;
+        return `setMotor("${side}", ${power});\n`;
+    }
+    javascriptGenerator.forBlock['clock_wait'] = function(block: Block, generator: JavascriptGenerator) {
+        const time = generator.valueToCode(block, 'TIME', Order.ATOMIC);
+
+        return `wait(${time});\n`;
     }
 
     workspace = Blockly.inject(blocklyWrapper!, { toolbox })
@@ -91,11 +112,17 @@ $effect(() => {
             </value>
         </block>
         <block type="motor_set_power">
-            <value name="SIDE">
-            </value>
+            <field name="SIDE">RIGHT</field>
             <value name="POWER">
               <shadow type="math_number">
                 <field name="NUM">100</field>
+              </shadow>
+            </value>
+        </block>
+        <block type="clock_wait">
+            <value name="TIME">
+              <shadow type="math_number">
+                <field name="NUM">1000</field>
               </shadow>
             </value>
         </block>
