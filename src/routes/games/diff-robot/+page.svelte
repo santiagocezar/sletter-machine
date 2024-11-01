@@ -1,4 +1,6 @@
 <script lang="ts">
+import Blockly from "$lib/components/Blockly.svelte";
+
 let ball: HTMLElement = $state();
 let base: HTMLElement = $state();
 let canvas: HTMLCanvasElement = $state();
@@ -18,6 +20,9 @@ const A = 1/2, B = -1/2;
 const C = -1/2, D = -1/2;
 const IA = 1, IB = -1;
 const IC = -1, ID = -1;
+
+let code: string = $state("");
+
 // function transform(x: number, y: number): [number, number] {
 //     return [
 //     ]
@@ -31,6 +36,7 @@ const IC = -1, ID = -1;
 
 
 function stopMoving(ev: MouseEvent | TouchEvent) {
+    console.log("what")
     moving = false
 
     powerX = 0;
@@ -171,6 +177,20 @@ function update(ctx: CanvasRenderingContext2D, paintCtx: CanvasRenderingContext2
     requestAnimationFrame(() => update(ctx, paintCtx))
 }
 
+function onCodeChage(c: string) {
+    code = c
+}
+
+function setMotor(side: "LEFT" | "RIGHT", power: number) {
+    if (side == "LEFT") powerX = power / 100
+    else powerY = power / 100
+}
+
+function runCode() {
+    setMotor
+    eval(code)
+}
+
 $effect(() => {
     robotX = canvas.width / 2;
     robotY = canvas.height / 2;
@@ -182,35 +202,62 @@ $effect(() => {
 })
 </script>
 
-<main
+<svelte:document
     onmousemove={keepMoving}
     ontouchmove={keepMoving}
     onmouseup={stopMoving}
-    ontouchstop={stopMoving}
->
-	<div class="view-container">
+    ontouchend={stopMoving}
+    ontouchcancel={stopMoving}
+/>
+
+<main>
+    <div class="workspace">
+        <Blockly oncodechange={onCodeChage} />
+    </div>
+    <div class="view-container">
         <canvas style="display: none;" bind:this={paintCanvas} width="640" height="360"></canvas>
         <canvas bind:this={canvas} width="640" height="360"></canvas>
 	</div>
-	<div
-        class="card joystick"
-        onmousedown={startMoving}
-        ontouchstart={startMoving}
-	>
-        <div bind:this={base} class="base">
-            <div bind:this={ball} class="ball">
+    <div class="actions">
+        <div
+            class="card joystick"
+            onmousedown={startMoving}
+            ontouchstart={startMoving}
+            role="none"
+        >
+            <div bind:this={base} class="base">
+                <div bind:this={ball} class="ball">
+                </div>
             </div>
         </div>
-	</div>
+        <button onclick={runCode}>Correr</button>
+    </div>
+    <pre>
+        <code>
+            {code}
+        </code>
+    </pre>
 </main>
 
 
 <style lang="less">
+main {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+.workspace {
+    grid-row: span 2;
+
+    > :global(*) {
+        width: 100%;
+        height: 100%;
+    }
+}
 .view-container {
     border: 1px solid black;
     width: min-content;
-    margin-left: auto;
-    margin-right: auto;
+    margin: 0;
+    padding: 0;
     border-radius: 0;
     overflow: visible;
 }
@@ -219,6 +266,8 @@ $effect(() => {
     aspect-ratio: 1 / 1;
     width: 12rem;
     margin: 0 auto;
+    touch-action: none;
+
     .base {
         position: absolute;
         background-color: white;
