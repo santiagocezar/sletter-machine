@@ -25,6 +25,7 @@ const IA = 1, IB = -1;
 const IC = -1, ID = -1;
 
 let code: string = $state("");
+let interpreter: Interpreter | undefined = undefined;
 
 // function transform(x: number, y: number): [number, number] {
 //     return [
@@ -192,35 +193,41 @@ function setMotor(side: "LEFT" | "RIGHT", power: number) {
 }
 
 function initApi(interpreter: Interpreter, globalObject: any) {
-  interpreter.setProperty(globalObject, 'setMotor',
-      interpreter.createNativeFunction(setMotor));
-  const wait = interpreter.createAsyncFunction(
-    function (time: number, callback: () => void) {
-      // Delay the call to the callback.
-      setTimeout(callback, time);
-    },
-  );
-  interpreter.setProperty(globalObject, 'wait', wait);
+    interpreter.setProperty(globalObject, 'setMotor',
+        interpreter.createNativeFunction(setMotor));
+    const wait = interpreter.createAsyncFunction(
+        function (time: number, callback: () => void) {
+            // Delay the call to the callback.
+            setTimeout(callback, time);
+        },
+    );
+    interpreter.setProperty(globalObject, 'wait', wait);
 }
 
 function runCode() {
-    setMotor
-    const interpreter = new Interpreter(code, initApi);
-    function run() {
+    reset()
+    interpreter = new Interpreter(code, initApi);
+}
+
+function interpreterLoop() {
+    requestAnimationFrame(interpreterLoop)
+    if (interpreter) {
         if (interpreter.run()) {
             // Execution is currently blocked by some async call.
             // Try again later.
-            requestAnimationFrame(run)
         } else {
             console.log("listo!")
+            interpreter = undefined;
         }
     }
-    run();
 }
 
 function reset() {
+    interpreter = undefined;
     robotX = canvas.width / 2;
     robotY = canvas.height / 2;
+    speedL = 0;
+    speedR = 0;
     robotPhi = 0;
 
     paintCanvas.getContext("2d").clearRect(0, 0, paintCanvas.width, paintCanvas.height)
@@ -233,6 +240,8 @@ $effect(() => {
         canvas.getContext("2d"),
         paintCanvas.getContext("2d")
     ))
+
+    interpreterLoop();
 })
 </script>
 
@@ -264,15 +273,13 @@ $effect(() => {
                 </div>
             </div>
         </div>
-        <div>
-            <button onclick={runCode}>Correr</button>
-            <div>
-                <label>
-                    <input type="checkbox" bind:checked={penDown}>
-                    Activar lapiz
-                </label>
-            </div>
-            <button class="btn" onclick={reset} >Reiniciar</button>
+        <div class="buttons">
+            <button class="btn" onclick={runCode}>Correr</button>
+            <button class="btn red" onclick={reset} >Reiniciar</button>
+            <label>
+                <input type="checkbox" bind:checked={penDown}>
+                Activar lapiz
+            </label>
         </div>
     </div>
     <pre>
@@ -304,16 +311,25 @@ main {
     border-radius: 0;
     overflow: visible;
 }
-.tools {
+.actions {
     display: flex;
+    align-items: center;
     justify-content: center;
     gap: 1rem;
+}
+.buttons {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+
+    .btn {
+        align-items: stretch;
+    }
 }
 .joystick {
     position: relative;
     aspect-ratio: 1 / 1;
     width: 12rem;
-    margin: 0 auto;
     touch-action: none;
 
     .base {
@@ -338,6 +354,8 @@ main {
     }
 }
 .btn {
-    margin: 0 auto;
+}
+.red {
+    --color: #f48;
 }
 </style>
