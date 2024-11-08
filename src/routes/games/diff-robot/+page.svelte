@@ -1,53 +1,53 @@
 <script lang="ts">
 import Blockly from "$lib/components/Blockly.svelte";
-import Interpreter from "js-interpreter";
+import { Robot, CodeRunner } from "$lib/diff-robot/control";
+import { attachCanvas } from "$lib/diff-robot/rendering";
 
-let ball: HTMLElement = $state();
-let base: HTMLElement = $state();
-let canvas: HTMLCanvasElement = $state();
-let paintCanvas: HTMLCanvasElement = $state();
-let originX = 0, originY = 0;
-let powerX = 0, powerY = 0;
-let baseSize = 0;
-let moving = false;
-
-let penDown = $state(true)
-
-let speedL = 0, speedR = 0;
-let robotX = 0, robotY = 0;
-let robotPhi = 0;
-let robotWidth = 50;
-let robotLength = 60;
-
+// transform matrices
 const A = 1/2, B = -1/2;
 const C = -1/2, D = -1/2;
 const IA = 1, IB = -1;
 const IC = -1, ID = -1;
 
+let ball: HTMLElement = $state();
+let base: HTMLElement = $state();
+
+let canvas: HTMLCanvasElement = $state();
+let paintCanvas: HTMLCanvasElement = $state();
+
+let originX = 0, originY = 0;
+
+let baseSize = 0;
+let moving = false;
+
+let penDown = $state(true)
+
 let code: string = $state("");
-let interpreter: Interpreter | undefined = undefined;
+let blocklyState: string = $state("null");
 
-// function transform(x: number, y: number): [number, number] {
-//     return [
-//     ]
-// }
-// function invTransform(x: number, y: number): [number, number] {
-//     return [
-//         IA*x+IB*y,
-//         IC*x+ID*y,
-//     ]
-// }
+const robot = new Robot()
+const codeRunner = new CodeRunner(robot);
 
+$effect(() => robot.penDown = penDown)
+$effect(() => {
+    if (blocklyState != "null")
+        localStorage.setItem("blocky-temp", blocklyState)
+})
+$effect(() => {
+    if (code != "")
+        localStorage.setItem("blocky-temp-code", code)
+})
 
 function stopMoving(ev: MouseEvent | TouchEvent) {
     console.log("what")
     moving = false
 
-    powerX = 0;
-    powerY = 0;
+    robot.powerL = 0;
+    robot.powerR = 0;
 
     moveBall()
 }
+
 function startMoving(ev: MouseEvent | TouchEvent) {
     moving = true
     const clickX = ev.clientX ?? ev.touches[0].clientX
@@ -61,25 +61,7 @@ function startMoving(ev: MouseEvent | TouchEvent) {
     setPowerFromClientPos(clickX, clickY);
 
     ev.preventDefault()
-
-    /*
-    if (doubleClick) {
-        angle += 90
-        currentPiece.setAttribute("data-angle", angle)
-
-        currentPiece.animate([{
-            transform: `translate(${x}px, ${y}px) rotate(${angle}deg)`
-        }], {
-            duration: 200,
-            easing: "cubic-bezier(.01,.68,.23,1.2)",
-            fill: "forwards"
-        })
-    }
-    doubleClick = true
-    setTimeout(() => doubleClick = false, 200)
-    */
 }
-
 
 function keepMoving(ev: MouseEvent | TouchEvent) {
     if (!moving) return;
@@ -87,32 +69,13 @@ function keepMoving(ev: MouseEvent | TouchEvent) {
     const clickY = ev.clientY ?? ev.touches[0].clientY
 
     setPowerFromClientPos(clickX, clickY);
-
-    ev.preventDefault()
-
-    /*
-    if (doubleClick) {
-        angle += 90
-        currentPiece.setAttribute("data-angle", angle)
-
-        currentPiece.animate([{
-            transform: `translate(${x}px, ${y}px) rotate(${angle}deg)`
-        }], {
-            duration: 200,
-            easing: "cubic-bezier(.01,.68,.23,1.2)",
-            fill: "forwards"
-        })
-    }
-    doubleClick = true
-    setTimeout(() => doubleClick = false, 200)
-    */
 }
 
 function moveBall() {
     // const x = (A*powerX+B*powerY + 1) / 2 * 100;
     // const y = (C*powerX+D*powerY + 1) / 2 * 100;
-    const x = (powerX + 1) / 2 * 100;
-    const y = (1 - powerY) / 2 * 100;
+    const x = (robot.powerL + 1) / 2 * 100;
+    const y = (1 - robot.powerR) / 2 * 100;
 
     // console.log({tx, ty})
     ball.animate([{
@@ -128,120 +91,50 @@ function setPowerFromClientPos(x: number, y: number) {
     x = (x - originX) / baseSize * 2 - 1;
     y = (y - originY) / baseSize * 2 - 1;
     // console.log({x, y})
-    powerX = IA*x+IB*y, powerY = IC*x+ID*y;
 
-    if (powerX < -1) powerX = -1;
-    if (powerX > 1) powerX = 1;
-    if (powerY < -1) powerY = -1;
-    if (powerY > 1) powerY = 1;
+    robot.powerL = IA*x+IB*y;
+    robot.powerR = IC*x+ID*y;
+
+    if (robot.powerL < -1) this.powerL = -1;
+    if (robot.powerL > 1) this.powerL = 1;
+    if (robot.powerR < -1) this.powerR = -1;
+    if (robot.powerR > 1) this.powerR = 1;
 
     moveBall()
 }
 
-function update(ctx: CanvasRenderingContext2D, paintCtx: CanvasRenderingContext2D) {
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-
-    ctx.drawImage(paintCanvas, 0, 0, paintCanvas.width, paintCanvas.height)
-
-    speedL += powerX / 10
-    speedR += powerY / 10
-    robotPhi += (speedL - speedR) / robotWidth;
-    const speed = (speedL + speedR) / 2;
-    const speedX = speed * Math.cos(robotPhi);
-    const speedY = speed * Math.sin(robotPhi);
-    speedL *= .95;
-    speedR *= .95;
-    robotX += speedX;
-    robotY += speedY;
-
-    if (penDown) {
-        paintCtx.beginPath()
-        paintCtx.moveTo(robotX, robotY)
-        paintCtx.lineTo(robotX + speedX, robotY + speedY)
-        paintCtx.stroke()
-    }
-
-    ctx.save()
-    ctx.translate(robotX, robotY)
-    ctx.rotate(robotPhi)
-    ctx.translate(-robotX, -robotY)
-
-    ctx.fillStyle = "#ffaa10";
-    ctx.fillRect(robotX, robotY - robotWidth / 2, robotLength / 2, robotWidth);
-    ctx.beginPath();
-    ctx.moveTo(robotX + robotLength / 2, robotY - robotWidth / 2);
-    ctx.lineTo(robotX + robotLength, robotY);
-    ctx.lineTo(robotX + robotLength / 2, robotY + robotWidth / 2);
-    ctx.lineTo(robotX, robotY);
-    ctx.fill();
-    ctx.fillStyle = "#111122";
-    ctx.fillRect(robotX - 10, robotY - robotWidth / 2 - 5, 20, 10);
-    ctx.fillRect(robotX - 10, robotY + robotWidth / 2 - 5, 20, 10);
-    ctx.restore()
-
-
-    requestAnimationFrame(() => update(ctx, paintCtx))
-}
-
-function onCodeChage(c: string) {
-    code = c
-}
-
-function setMotor(side: "LEFT" | "RIGHT", power: number) {
-    if (side == "LEFT") powerX = power / 100
-    else powerY = power / 100
-}
-
-function initApi(interpreter: Interpreter, globalObject: any) {
-    interpreter.setProperty(globalObject, 'setMotor',
-        interpreter.createNativeFunction(setMotor));
-    const wait = interpreter.createAsyncFunction(
-        function (time: number, callback: () => void) {
-            // Delay the call to the callback.
-            setTimeout(callback, time);
-        },
-    );
-    interpreter.setProperty(globalObject, 'wait', wait);
-}
-
 function runCode() {
     reset()
-    interpreter = new Interpreter(code, initApi);
-}
-
-function interpreterLoop() {
-    requestAnimationFrame(interpreterLoop)
-    if (interpreter) {
-        if (interpreter.run()) {
-            // Execution is currently blocked by some async call.
-            // Try again later.
-        } else {
-            console.log("listo!")
-            interpreter = undefined;
-        }
-    }
+    codeRunner.runCode(code)
 }
 
 function reset() {
-    interpreter = undefined;
-    robotX = canvas.width / 2;
-    robotY = canvas.height / 2;
-    speedL = 0;
-    speedR = 0;
-    robotPhi = 0;
+    codeRunner.stop()
+    robot.reset()
 
+    // should probably move this somewhere else but eh.
     paintCanvas.getContext("2d").clearRect(0, 0, paintCanvas.width, paintCanvas.height)
 }
 
 $effect(() => {
-    robotX = canvas.width / 2;
-    robotY = canvas.height / 2;
-    requestAnimationFrame(() => update(
-        canvas.getContext("2d"),
-        paintCanvas.getContext("2d")
-    ))
+    blocklyState = localStorage.getItem("blocky-temp") ?? "null"
+    code = localStorage.getItem("blocky-temp-code") ?? ""
 
-    interpreterLoop();
+    const render = attachCanvas(canvas!, paintCanvas!)
+
+    const update = () => {
+        if (codeRunner.isRunning() && !codeRunner.step()) {
+            robot.stop()
+        }
+
+        robot.step()
+
+        render(robot);
+
+        requestAnimationFrame(update)
+    }
+
+    update();
 })
 </script>
 
@@ -255,11 +148,15 @@ $effect(() => {
 
 <main>
     <div class="workspace">
-        <Blockly oncodechange={onCodeChage} />
+        <Blockly bind:value={blocklyState} bind:code={code} />
+    </div>
+    <div class="buttons">
+        <button class="btn material-symbols-sharp" onclick={runCode}>flag</button>
+        <button class="btn red material-symbols-sharp" onclick={reset} >dangerous</button>
     </div>
     <div class="view-container">
-        <canvas style="display: none;" bind:this={paintCanvas} width="640" height="360"></canvas>
-        <canvas bind:this={canvas} width="640" height="360"></canvas>
+        <canvas style="display: none;" bind:this={paintCanvas} width="600" height="300"></canvas>
+        <canvas bind:this={canvas} width="600" height="300"></canvas>
 	</div>
     <div class="actions">
         <div
@@ -273,30 +170,23 @@ $effect(() => {
                 </div>
             </div>
         </div>
-        <div class="buttons">
-            <button class="btn" onclick={runCode}>Correr</button>
-            <button class="btn red" onclick={reset} >Reiniciar</button>
-            <label>
-                <input type="checkbox" bind:checked={penDown}>
-                Activar lapiz
-            </label>
-        </div>
+        <label>
+            <input type="checkbox" bind:checked={penDown}>
+            Activar lapiz
+        </label>
     </div>
-    <pre>
-        <code>
-            {code}
-        </code>
-    </pre>
 </main>
 
 
 <style lang="less">
 main {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr min-content;
+    grid-template-rows: min-content min-content 1fr;
+    height: 100%;
 }
 .workspace {
-    grid-row: span 2;
+    grid-row: span 3;
 
     > :global(*) {
         width: 100%;
@@ -304,7 +194,8 @@ main {
     }
 }
 .view-container {
-    border: 1px solid black;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
     width: min-content;
     margin: 0;
     padding: 0;
@@ -318,12 +209,14 @@ main {
     gap: 1rem;
 }
 .buttons {
+    border-top: 1px solid #ddd;
+    padding: .5rem;
     display: flex;
-    flex-direction: column;
     gap: .5rem;
+    justify-content: end;
+    height: min-content;
 
     .btn {
-        align-items: stretch;
     }
 }
 .joystick {

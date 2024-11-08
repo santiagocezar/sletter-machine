@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@blockly/theme-modern':
+        specifier: ^6.0.7
+        version: 6.0.7(blockly@11.1.1)
       '@sveltejs/adapter-auto':
         specifier: ^3.0.0
         version: 3.2.2(@sveltejs/kit@2.5.16(@sveltejs/vite-plugin-svelte@3.1.1(svelte@5.0.0-next.158)(vite@5.2.12(less@4.2.0)))(svelte@5.0.0-next.158)(vite@5.2.12(less@4.2.0)))
@@ -54,6 +57,12 @@ packages:
   '@ampproject/remapping@2.3.0':
     resolution: {integrity: sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw==}
     engines: {node: '>=6.0.0'}
+
+  '@blockly/theme-modern@6.0.7':
+    resolution: {integrity: sha512-RUEmunGe1L6So0sTpBd1yUz3foUAzjTj1x0y3P4iyuGu0HzfLIacqUpdU4wQNteGPbKSBp7qDFRXaH/V2eJ6QA==}
+    engines: {node: '>=8.17.0'}
+    peerDependencies:
+      blockly: ^11.0.0
 
   '@emmetio/abbreviation@2.3.3':
     resolution: {integrity: sha512-mgv58UrU3rh4YgbE/TzgLQwJ3pFsHHhCLqY20aJq+9comytTXUDNGG/SMtSeMJdkpxgXSXunBGLD8Boka3JyVA==}
@@ -1085,6 +1094,10 @@ snapshots:
     dependencies:
       '@jridgewell/gen-mapping': 0.3.5
       '@jridgewell/trace-mapping': 0.3.25
+
+  '@blockly/theme-modern@6.0.7(blockly@11.1.1)':
+    dependencies:
+      blockly: 11.1.1
 
   '@emmetio/abbreviation@2.3.3':
     dependencies:

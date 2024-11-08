@@ -1,28 +1,32 @@
 <script lang="ts">
 import * as Blockly from 'blockly/core'
+import Theme from '@blockly/theme-modern';
 import * as es from 'blockly/msg/es'
 import * as libraryBlocks from 'blockly/blocks';
+
 import { javascriptGenerator, Order, type JavascriptGenerator } from 'blockly/javascript';
-import blocks from './every_blocks.json'
 import type { Workspace, Block } from 'blockly';
+    import { untrack } from 'svelte';
 
 interface Props {
-    oncodechange: (code: string) => void; 
+    value: string
+    code: string
 }
 
-const { oncodechange }: Props = $props()
+let { value = $bindable(), code = $bindable()  }: Props = $props()
+
+let updating = $state(false)
 
 let blocklyWrapper: HTMLElement | undefined = $state()
 let toolbox: XMLDocument | undefined = $state()
 
 let workspace: Workspace
-let code: string = $state("")
 
 $effect(() => {
     Blockly.setLocale(es as any)
     Blockly.defineBlocksWithJsonArray([
         {
-            "type": "motor_set_power",
+            "type": "robot_set_power",
             "tooltip": "",
             "helpUrl": "",
             "message0": "motor %1 al %2",
@@ -52,6 +56,33 @@ $effect(() => {
             "colour": 30
         },
         {
+            "type": "robot_stop",
+            "tooltip": "",
+            "helpUrl": "",
+            "message0": "detener robot",
+            "previousStatement": null,
+            "nextStatement": null,
+            "colour": 30
+        },
+        {
+            "type": "robot_pen_down",
+            "tooltip": "",
+            "helpUrl": "",
+            "message0": "bajar lapiz",
+            "previousStatement": null,
+            "nextStatement": null,
+            "colour": 30
+        },
+        {
+            "type": "robot_pen_up",
+            "tooltip": "",
+            "helpUrl": "",
+            "message0": "subir lapiz",
+            "previousStatement": null,
+            "nextStatement": null,
+            "colour": 30
+        },
+        {
             "type": "clock_wait",
             "tooltip": "",
             "helpUrl": "",
@@ -68,26 +99,49 @@ $effect(() => {
             "colour": 30
         }
     ])
-    javascriptGenerator.forBlock['motor_set_power'] = function(block: Block, generator: JavascriptGenerator) {
+    javascriptGenerator.forBlock['robot_set_power'] = function(block: Block, generator: JavascriptGenerator) {
         const side = block.getFieldValue('SIDE');
         // TODO: change Order.ATOMIC to the correct operator precedence strength
         const power = generator.valueToCode(block, 'POWER', Order.ATOMIC);
 
         return `setMotor("${side}", ${power});\n`;
     }
+    javascriptGenerator.forBlock['robot_pen_down'] = function(block: Block, generator: JavascriptGenerator) {
+        return "penState(true);\n";
+    }
+    javascriptGenerator.forBlock['robot_pen_up'] = function(block: Block, generator: JavascriptGenerator) {
+        return "penState(false);\n";
+    }
     javascriptGenerator.forBlock['clock_wait'] = function(block: Block, generator: JavascriptGenerator) {
         const time = generator.valueToCode(block, 'TIME', Order.ATOMIC);
 
         return `wait(${time});\n`;
     }
+    javascriptGenerator.forBlock['robot_stop'] = function(block: Block, generator: JavascriptGenerator) {
+        return `stop();\n`;
+    }
 
-    workspace = Blockly.inject(blocklyWrapper!, { toolbox })
+    workspace = Blockly.inject(blocklyWrapper!, { theme: Theme, toolbox })
     
     workspace.addChangeListener(() => {
-        console.timeLog("gola")
+        updating = true
+
         code = javascriptGenerator.workspaceToCode(workspace)
-        oncodechange(code)
+        value = JSON.stringify(Blockly.serialization.workspaces.save(workspace));
+        console.log(typeof value)
     })
+})
+
+$effect(() => {
+    const blocklyState = JSON.parse(value)
+    const u = untrack(() => updating)
+    console.log(`is updating = ${u}, ${value}`)
+    if (!u && blocklyState) {
+        Blockly.Events.disable()
+        Blockly.serialization.workspaces.load(blocklyState, workspace);
+        Blockly.Events.enable()
+    }
+    updating = false;
 })
 </script>
 
@@ -104,14 +158,14 @@ $effect(() => {
       <block type="logic_ternary"></block>
     </category>
     <category name="Robotito" colour="30">
-        <block type="motor_set_power">
+        <block type="robot_set_power">
             <value name="POWER">
               <shadow type="math_number">
                 <field name="NUM">100</field>
               </shadow>
             </value>
         </block>
-        <block type="motor_set_power">
+        <block type="robot_set_power">
             <field name="SIDE">RIGHT</field>
             <value name="POWER">
               <shadow type="math_number">
@@ -119,6 +173,9 @@ $effect(() => {
               </shadow>
             </value>
         </block>
+        <block type="robot_stop"></block>
+        <block type="robot_pen_down"></block>
+        <block type="robot_pen_up"></block>
         <block type="clock_wait">
             <value name="TIME">
               <shadow type="math_number">
@@ -389,3 +446,9 @@ $effect(() => {
     <category name="Variables" colour="%&lcub;BKY_VARIABLES_HUE&rcub;" custom="VARIABLE"></category>
     <category name="Funciones" colour="%&lcub;BKY_PROCEDURES_HUE&rcub;" custom="PROCEDURE"></category>
   </xml>
+
+<style>
+:global(svg[display="none"]) {
+  display: none;
+}
+</style>
