@@ -95,10 +95,10 @@ function setPowerFromClientPos(x: number, y: number) {
     robot.powerL = IA*x+IB*y;
     robot.powerR = IC*x+ID*y;
 
-    if (robot.powerL < -1) this.powerL = -1;
-    if (robot.powerL > 1) this.powerL = 1;
-    if (robot.powerR < -1) this.powerR = -1;
-    if (robot.powerR > 1) this.powerR = 1;
+    if (robot.powerL < -1) robot.powerL = -1;
+    if (robot.powerL > 1) robot.powerL = 1;
+    if (robot.powerR < -1) robot.powerR = -1;
+    if (robot.powerR > 1) robot.powerR = 1;
 
     moveBall()
 }
@@ -106,6 +106,10 @@ function setPowerFromClientPos(x: number, y: number) {
 function runCode() {
     reset()
     codeRunner.runCode(code)
+}
+
+function copyToClipboard() {
+    navigator.clipboard.writeText(blocklyState)
 }
 
 function reset() {
@@ -151,7 +155,9 @@ $effect(() => {
         <Blockly bind:value={blocklyState} bind:code={code} />
     </div>
     <div class="buttons">
-        <button class="btn material-symbols-sharp" onclick={runCode}>flag</button>
+        <button class="btn material-symbols-sharp" onclick={copyToClipboard}>content_copy</button>
+        <div class="expand"></div>
+        <button class="btn green material-symbols-sharp" onclick={runCode}>flag</button>
         <button class="btn red material-symbols-sharp" onclick={reset} >dangerous</button>
     </div>
     <div class="view-container">
@@ -216,7 +222,8 @@ main {
     justify-content: end;
     height: min-content;
 
-    .btn {
+    .expand {
+        flex-grow: 1;
     }
 }
 .joystick {
@@ -245,10 +252,5 @@ main {
         left: 50%;
         top: 50%;
     }
-}
-.btn {
-}
-.red {
-    --color: #f48;
 }
 </style>
