@@ -25,17 +25,18 @@ import logo from '$lib/assets/logo.svg'
 
 a {
     display: block;
-    height: 2rem;
+    flex-shrink: 0;
+    height: 100%;
 }
 img {
     height: 100%;
+    max-width: unset;
 }
 
 header {
     display: flex;
     gap: 1rem;
     padding: .25rem 1rem;
-    align-items: center;
 }
 
 </style>

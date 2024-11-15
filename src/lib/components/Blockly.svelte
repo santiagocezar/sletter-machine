@@ -53,7 +53,7 @@ $effect(() => {
             ],
             "previousStatement": null,
             "nextStatement": null,
-            "colour": 30
+            "style": "robot_blocks"
         },
         {
             "type": "robot_stop",
@@ -62,7 +62,7 @@ $effect(() => {
             "message0": "detener robot",
             "previousStatement": null,
             "nextStatement": null,
-            "colour": 30
+            "style": "robot_blocks"
         },
         {
             "type": "robot_pen_down",
@@ -71,7 +71,7 @@ $effect(() => {
             "message0": "bajar lapiz",
             "previousStatement": null,
             "nextStatement": null,
-            "colour": 30
+            "style": "robot_blocks"
         },
         {
             "type": "robot_pen_up",
@@ -80,7 +80,7 @@ $effect(() => {
             "message0": "subir lapiz",
             "previousStatement": null,
             "nextStatement": null,
-            "colour": 30
+            "style": "robot_blocks"
         },
         {
             "type": "clock_wait",
@@ -96,7 +96,7 @@ $effect(() => {
             ],
             "previousStatement": null,
             "nextStatement": null,
-            "colour": 30
+            "style": "robot_blocks"
         }
     ])
     javascriptGenerator.forBlock['robot_set_power'] = function(block: Block, generator: JavascriptGenerator) {
@@ -121,7 +121,20 @@ $effect(() => {
         return `stop();\n`;
     }
 
-    workspace = Blockly.inject(blocklyWrapper!, { theme: Theme, toolbox })
+    const theme = Blockly.Theme.defineTheme('modern2', {
+        name: 'modern2',
+        base: Blockly.Themes.Zelos,
+        blockStyles: {
+            "robot_blocks": {
+                colourPrimary: "#ff6c03"
+            }
+        },
+        fontStyle: {
+            family: 'Inter'
+        }
+    })
+    
+    workspace = Blockly.inject(blocklyWrapper!, { theme, toolbox, renderer: "zelos" })
     
     workspace.addChangeListener(() => {
         updating = true
@@ -145,7 +158,7 @@ $effect(() => {
 })
 </script>
 
-<div bind:this={blocklyWrapper}></div>
+<div class="wrapper" bind:this={blocklyWrapper}></div>
 
 <xml bind:this={toolbox} xmlns="https://developers.google.com/blockly/xml" id="toolbox" style="display: none">
     <category name="Lógica" colour="%&lcub;BKY_LOGIC_HUE&rcub;">
@@ -450,5 +463,14 @@ $effect(() => {
 <style>
 :global(svg[display="none"]) {
   display: none;
+}
+:global(.blocklyMainBackground) {
+  stroke: none !important;
+}
+
+
+.wrapper {
+  width: 100%;
+  height: 100%;
 }
 </style>

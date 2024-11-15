@@ -1,7 +1,11 @@
 <script lang="ts">
+import info from './info.md?raw'
+
 import Blockly from "$lib/components/Blockly.svelte";
 import { Robot, CodeRunner } from "$lib/diff-robot/control";
 import { attachCanvas } from "$lib/diff-robot/rendering";
+import { TabContent, TabItem, TabList, TabView } from "$lib/components/tabs/index";
+    import { marked } from 'marked';
 
 // transform matrices
 const A = 1/2, B = -1/2;
@@ -152,7 +156,20 @@ $effect(() => {
 
 <main>
     <div class="workspace">
-        <Blockly bind:value={blocklyState} bind:code={code} />
+        <TabView>
+            <TabList>
+                <TabItem>Bloques</TabItem>
+                <TabItem>Info</TabItem>
+            </TabList>
+            <TabContent>
+                <Blockly bind:value={blocklyState} bind:code={code} />
+            </TabContent>
+            <TabContent class="info-content">
+                <section>
+                    {@html marked(info)}
+                </section>
+            </TabContent>
+        </TabView>
     </div>
     <div class="buttons">
         <button class="btn material-symbols-sharp" onclick={copyToClipboard}>content_copy</button>
@@ -188,15 +205,28 @@ $effect(() => {
 main {
     display: grid;
     grid-template-columns: 1fr min-content;
-    grid-template-rows: min-content min-content 1fr;
+    grid-template-rows: minmax(0, min-content) minmax(0, min-content) minmax(0, 1fr);
+    min-height: 0;
     height: 100%;
 }
 .workspace {
     grid-row: span 3;
+    display: grid;
+    
+    border-top: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    grid-template-rows: min-content minmax(0, 1fr);
 
-    > :global(*) {
+    /*> :global(*) {
         width: 100%;
         height: 100%;
+    }*/
+    :global(.info-content) {    
+        overflow: auto;
+    }
+    section {
+        padding: 0 5rem 5rem 5rem;
+        margin: 0 auto;
     }
 }
 .view-container {
@@ -253,4 +283,5 @@ main {
         top: 50%;
     }
 }
+
 </style>
