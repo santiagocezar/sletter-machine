@@ -1,11 +1,12 @@
 <script lang="ts">
 import info from './info.md?raw'
+import demos from './demos.txt?raw'
 
 import Blockly from "$lib/components/Blockly.svelte";
 import { Robot, CodeRunner } from "$lib/diff-robot/control";
 import { attachCanvas } from "$lib/diff-robot/rendering";
 import { TabContent, TabItem, TabList, TabView } from "$lib/components/tabs/index";
-    import { marked } from 'marked';
+import { marked } from 'marked';
 
 // transform matrices
 const A = 1/2, B = -1/2;
@@ -26,17 +27,42 @@ let moving = false;
 
 let penDown = $state(true)
 
+let demoNumber: number = $state(0);
+
+const demoList = demos.split("\n").filter(s => s != "")
+
+function nextDemo() {
+    console.log("demo finished, waiting for next")
+    setTimeout(() => {
+        console.log("next, please")
+        demoNumber++
+    }, 2000)
+}
+
 let code: string = $state("");
-let blocklyState: string = $state("null");
+let blocklyState: string = $derived(demoList[demoNumber % demoList.length]);
+
+$effect(() => {
+    if (code != "") {
+        console.log("playing next demo")
+        console.log(code)
+        robot.reset()
+
+        // should probably move this somewhere else but eh.
+        paintCanvas.getContext("2d").clearRect(0, 0, paintCanvas.width, paintCanvas.height)
+        codeRunner.runCode(code)
+        codeRunner.callback = nextDemo
+    }
+})
 
 const robot = new Robot()
 const codeRunner = new CodeRunner(robot);
 
 $effect(() => robot.penDown = penDown)
-$effect(() => {
-    if (blocklyState != "null")
-        localStorage.setItem("blocky-temp", blocklyState)
-})
+// $effect(() => {
+//     if (blocklyState != "null")
+//         localStorage.setItem("blocky-temp", blocklyState)
+// })
 $effect(() => {
     if (code != "")
         localStorage.setItem("blocky-temp-code", code)
@@ -125,7 +151,7 @@ function reset() {
 }
 
 $effect(() => {
-    blocklyState = localStorage.getItem("blocky-temp") ?? "null"
+    // blocklyState = localStorage.getItem("blocky-temp") ?? "null"
     code = localStorage.getItem("blocky-temp-code") ?? ""
 
     const render = attachCanvas(canvas!, paintCanvas!)
@@ -162,7 +188,7 @@ $effect(() => {
                 <TabItem>Info</TabItem>
             </TabList>
             <TabContent>
-                <Blockly bind:value={blocklyState} bind:code={code} />
+                <Blockly value={blocklyState} bind:code={code} />
             </TabContent>
             <TabContent class="info-content">
                 <section>

@@ -69,6 +69,7 @@ export class Robot {
 export class CodeRunner {
     robot: Robot
     interpreter: Interpreter | null = null;
+    callback = () => {}
 
     constructor(forRobot: Robot) {
         this.robot = forRobot
@@ -93,9 +94,9 @@ export class CodeRunner {
             ));
 
         const wait = interpreter.createAsyncFunction(
-            function (time: number, callback: () => void) {
+            function (time: number, cb: () => void) {
                 // Delay the call to the callback.
-                setTimeout(callback, time);
+                setTimeout(cb, time);
             },
         );
         interpreter.setProperty(globalObject, 'wait', wait);
@@ -107,6 +108,7 @@ export class CodeRunner {
 
     stop() {
         this.interpreter = null;
+        this.callback()
     }
 
     step(): boolean {

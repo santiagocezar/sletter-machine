@@ -34,6 +34,8 @@ import logo from '$lib/assets/logo.svg?url'
             <p>Simular un robot con motores de transmisión diferencial</p>
         </a>
     </div>
+    <textarea>
+    </textarea>
 </main>
 
 <style lang="less">

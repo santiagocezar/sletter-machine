@@ -17,8 +17,8 @@ export function attachCanvas(canvas: HTMLCanvasElement, paintCanvas: HTMLCanvasE
 
         if (robot.penDown) {
             paintCtx.beginPath()
-            paintCtx.moveTo(x, y)
-            paintCtx.lineTo(x + robot.speedX, y + robot.speedY)
+            paintCtx.moveTo(x - robot.speedX, y - robot.speedY)
+            paintCtx.lineTo(x, y)
             paintCtx.stroke()
         }
 

@@ -130,7 +130,7 @@ $effect(() => {
             }
         },
         fontStyle: {
-            family: 'Inter'
+            family: 'Inter',
         }
     })
     
@@ -141,17 +141,16 @@ $effect(() => {
 
         code = javascriptGenerator.workspaceToCode(workspace)
         value = JSON.stringify(Blockly.serialization.workspaces.save(workspace));
-        console.log(typeof value)
     })
 })
 
 $effect(() => {
     const blocklyState = JSON.parse(value)
     const u = untrack(() => updating)
-    console.log(`is updating = ${u}, ${value}`)
     if (!u && blocklyState) {
         Blockly.Events.disable()
         Blockly.serialization.workspaces.load(blocklyState, workspace);
+        code = javascriptGenerator.workspaceToCode(workspace)
         Blockly.Events.enable()
     }
     updating = false;
