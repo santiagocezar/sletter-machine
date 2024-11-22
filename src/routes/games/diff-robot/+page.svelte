@@ -56,9 +56,7 @@ $effect(() => {
     let lastTime = 0
 
     const update = (elapsed: number) => {
-        if (codeRunner.isRunning() && !codeRunner.step()) {
-            robot.stop()
-        }
+        while(!robot.isWaiting() && codeRunner.step()) {}
 
         robot.step((elapsed - lastTime) / 1000)
 
@@ -76,6 +74,8 @@ $effect(() => {
         update(lastTime);
     })
 })
+
+$inspect(code)
 </script>
 
 <main>

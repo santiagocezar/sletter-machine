@@ -18,11 +18,16 @@ export class Robot {
     axisWidth = 50;
     length = 60;
 
+    waiting = 0;
+
     outside = false;
 
     penDown = false;
 
     step(dt: number) {
+        if (this.isWaiting())
+            this.waiting -= dt
+
         this.speedL += this.powerL / 10 * dt * 60;
         this.speedR += this.powerR / 10 * dt * 60;
 
@@ -59,6 +64,14 @@ export class Robot {
         return this.outside
     }
 
+    wait(ms: number) {
+        this.waiting = ms / 1000
+    }
+
+    isWaiting() {
+        return this.waiting > 0
+    }
+
     reset() {
         this.stop();
 
@@ -69,8 +82,15 @@ export class Robot {
         this.speedR = 0;
 
         this.rotation = 0;
+
+        this.waiting = 0;
     }
 }
+
+type Methods<T> =
+    {
+        [K in keyof T]-?: T[K] extends Function ? K : never
+    }[keyof T]
 
 export class CodeRunner {
     robot: Robot
@@ -82,37 +102,18 @@ export class CodeRunner {
     }
 
     initApi = (interpreter: Interpreter, globalObject: any) => {
-        interpreter.setProperty(
-            globalObject, 'setMotor',
-            interpreter.createNativeFunction(
-                this.robot.setMotor.bind(this.robot)
-            ));
+        const bindFn = (method: Methods<Robot>) =>
+            interpreter.setProperty(
+                globalObject, method,
+                interpreter.createNativeFunction(
+                    this.robot[method].bind(this.robot)
+                ));
 
-        interpreter.setProperty(
-            globalObject, 'stop',
-            interpreter.createNativeFunction(
-                this.robot.stop.bind(this.robot)
-            ));
-
-        interpreter.setProperty(
-            globalObject, 'penState',
-            interpreter.createNativeFunction(
-                this.robot.penState.bind(this.robot)
-            ));
-
-        interpreter.setProperty(
-            globalObject, 'isOutside',
-            interpreter.createNativeFunction(
-                this.robot.isOutside.bind(this.robot)
-            ));
-
-        const wait = interpreter.createAsyncFunction(
-            function (time: number, cb: () => void) {
-                // Delay the call to the callback.
-                setTimeout(cb, time);
-            },
-        );
-        interpreter.setProperty(globalObject, 'wait', wait);
+        bindFn("setMotor")
+        bindFn("stop")
+        bindFn("penState")
+        bindFn("isOutside")
+        bindFn("wait")
     }
 
     runCode(code: string) {
@@ -125,10 +126,12 @@ export class CodeRunner {
     }
 
     step(): boolean {
-        if (this.interpreter && !this.interpreter.run()) {
-            console.log("Finalizó la ejecución del código")
-            this.stop();
-            return false;
+        if (!this.interpreter)
+            return false
+
+        if (!this.interpreter.step()) {
+            this.interpreter.appendCode("loop()")
+            return false
         }
         return true;
     }

@@ -90,6 +90,29 @@ $effect(() => {
             "style": "robot_blocks"
         },
         {
+            "type": "robot_start",
+            "tooltip": "",
+            "helpUrl": "",
+            "message0": "al inicio",
+            "nextStatement": null,
+            "style": "robot_control",
+        },
+        {
+            "type": "robot_loop",
+            "tooltip": "",
+            "helpUrl": "",
+            "message0": "por siempre",
+            "message1": "hacer %1",
+            "args1": [
+                {
+                    "type": "input_statement",
+                    "name": "DO",
+                }
+            ],
+            "nextStatement": null,
+            "style": "robot_control",
+        },
+        {
             "type": "clock_wait",
             "tooltip": "",
             "helpUrl": "",
@@ -116,6 +139,14 @@ $effect(() => {
     javascriptGenerator.forBlock['robot_outside'] = function(block: Block, generator: JavascriptGenerator) {
         return ["isOutside()", Order.NONE];
     }
+    javascriptGenerator.forBlock['robot_start'] = function(block: Block, generator: JavascriptGenerator) {
+        return "";
+    }
+    javascriptGenerator.forBlock['robot_loop'] = function(block: Block, generator: JavascriptGenerator) {
+        const code = generator.statementToCode(block, 'DO');
+
+        return `function loop() {${code}}`;
+    }
     javascriptGenerator.forBlock['robot_pen_down'] = function(block: Block, generator: JavascriptGenerator) {
         return "penState(true);\n";
     }
@@ -137,6 +168,9 @@ $effect(() => {
         blockStyles: {
             "robot_blocks": {
                 colourPrimary: "#ff6c03"
+            },
+            "robot_control": {
+                colourPrimary: "#414088"
             }
         },
         categoryStyles: {
@@ -151,7 +185,8 @@ $effect(() => {
     })
     
     workspace = Blockly.inject(blocklyWrapper!, { theme, toolbox, renderer: "zelos" })
-    
+
+    workspace.addChangeListener(Blockly.Events.disableOrphans);
     workspace.addChangeListener(() => {
         updating = true
 
@@ -201,6 +236,8 @@ $effect(() => {
               </shadow>
             </value>
         </block>
+        <block type="robot_start"></block>
+        <block type="robot_loop"></block>
         <block type="robot_stop"></block>
         <block type="robot_outside"></block>
         <block type="robot_pen_down"></block>
