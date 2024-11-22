@@ -130,7 +130,7 @@ export class CodeRunner {
             return false
 
         if (!this.interpreter.step()) {
-            this.interpreter.appendCode("loop()")
+            this.interpreter.appendCode("if(typeof loop == 'function') loop()")
             return false
         }
         return true;

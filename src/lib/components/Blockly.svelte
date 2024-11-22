@@ -28,7 +28,7 @@ $effect(() => {
             "type": "robot_set_power",
             "tooltip": "",
             "helpUrl": "",
-            "message0": "motor %1 al %2",
+            "message0": "fuerza motor %1 al %2%%",
             "args0": [
                 {
                     "type": "field_dropdown",
@@ -58,7 +58,7 @@ $effect(() => {
             "type": "robot_stop",
             "tooltip": "",
             "helpUrl": "",
-            "message0": "detener robot",
+            "message0": "apagar motores",
             "previousStatement": null,
             "nextStatement": null,
             "style": "robot_blocks"
@@ -221,6 +221,8 @@ $effect(() => {
       <block type="logic_ternary"></block>
     </category>
     <category name="Robotito" categorystyle="robot_category">
+        <block type="robot_start"></block>
+        <block type="robot_loop"></block>
         <block type="robot_set_power">
             <value name="POWER">
               <shadow type="math_number">
@@ -236,12 +238,7 @@ $effect(() => {
               </shadow>
             </value>
         </block>
-        <block type="robot_start"></block>
-        <block type="robot_loop"></block>
         <block type="robot_stop"></block>
-        <block type="robot_outside"></block>
-        <block type="robot_pen_down"></block>
-        <block type="robot_pen_up"></block>
         <block type="clock_wait">
             <value name="TIME">
               <shadow type="math_number">
@@ -249,6 +246,9 @@ $effect(() => {
               </shadow>
             </value>
         </block>
+        <block type="robot_outside"></block>
+        <block type="robot_pen_down"></block>
+        <block type="robot_pen_up"></block>
       </category>
     <category name="Bucles" categorystyle="loop_category">
       <block type="controls_repeat_ext">
