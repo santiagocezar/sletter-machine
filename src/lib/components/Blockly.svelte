@@ -139,6 +139,11 @@ $effect(() => {
                 colourPrimary: "#ff6c03"
             }
         },
+        categoryStyles: {
+            "robot_category": {
+                colour: "#ff6c03"
+            }
+        },
         fontStyle: {
             family: 'Inter',
         },
@@ -171,7 +176,7 @@ $effect(() => {
 <div class="wrapper" bind:this={blocklyWrapper}></div>
 
 <xml bind:this={toolbox} xmlns="https://developers.google.com/blockly/xml" id="toolbox" style="display: none">
-    <category name="Lógica" colour="%&lcub;BKY_LOGIC_HUE&rcub;">
+    <category name="Lógica" categorystyle="logic_category">
       <block type="controls_if"></block>
       <block type="logic_compare"></block>
       <block type="logic_operation"></block>
@@ -180,7 +185,7 @@ $effect(() => {
       <block type="logic_null"></block>
       <block type="logic_ternary"></block>
     </category>
-    <category name="Robotito" colour="30">
+    <category name="Robotito" categorystyle="robot_category">
         <block type="robot_set_power">
             <value name="POWER">
               <shadow type="math_number">
@@ -208,7 +213,7 @@ $effect(() => {
             </value>
         </block>
       </category>
-    <category name="Bucles" colour="%&lcub;BKY_LOOPS_HUE&rcub;">
+    <category name="Bucles" categorystyle="loop_category">
       <block type="controls_repeat_ext">
         <value name="TIMES">
           <shadow type="math_number">
@@ -237,7 +242,7 @@ $effect(() => {
       <block type="controls_forEach"></block>
       <block type="controls_flow_statements"></block>
     </category>
-    <category name="Cálculos" colour="%&lcub;BKY_MATH_HUE&rcub;">
+    <category name="Cálculos" categorystyle="math_category">
       <block type="math_number">
         <field name="NUM">123</field>
       </block>
@@ -338,7 +343,7 @@ $effect(() => {
         </value>
       </block>
     </category>
-    <category name="Texto" colour="%&lcub;BKY_TEXTS_HUE&rcub;">
+    <category name="Texto" categorystyle="text_category">
       <block type="text"></block>
       <block type="text_join"></block>
       <block type="text_append">
@@ -415,7 +420,7 @@ $effect(() => {
         </value>
       </block>
     </category>
-    <category name="Listas" colour="%&lcub;BKY_LISTS_HUE&rcub;">
+    <category name="Listas" categorystyle="list_category">
       <block type="lists_create_with">
         <mutation items="0"></mutation>
       </block>
@@ -467,16 +472,23 @@ $effect(() => {
       <block type="lists_sort"></block>
     </category>
     <sep></sep>
-    <category name="Variables" colour="%&lcub;BKY_VARIABLES_HUE&rcub;" custom="VARIABLE"></category>
-    <category name="Funciones" colour="%&lcub;BKY_PROCEDURES_HUE&rcub;" custom="PROCEDURE"></category>
+    <category name="Variables" categorystyle="variable_category" custom="VARIABLE"></category>
+    <category name="Funciones" categorystyle="procedure_category" custom="PROCEDURE"></category>
   </xml>
 
 <style>
-:global(svg[display="none"]) {
-  display: none;
-}
-:global(.blocklyMainBackground) {
-  stroke: none !important;
+:global{
+  svg[display="none"] {
+    display: none;
+  }
+  .blocklyMainBackground {
+    stroke: none !important;
+  }
+  .blocklyTreeRow {
+    height: auto;
+    margin: 0 4px 4px 4px;
+    border-radius: 4px;
+  }
 }
 
 
