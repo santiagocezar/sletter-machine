@@ -64,6 +64,14 @@ $effect(() => {
             "style": "robot_blocks"
         },
         {
+            "type": "robot_outside",
+            "tooltip": "",
+            "helpUrl": "",
+            "message0": "¿está afuera?",
+            "output": "Boolean",
+            "style": "robot_blocks"
+        },
+        {
             "type": "robot_pen_down",
             "tooltip": "",
             "helpUrl": "",
@@ -104,6 +112,9 @@ $effect(() => {
         const power = generator.valueToCode(block, 'POWER', Order.ATOMIC);
 
         return `setMotor("${side}", ${power});\n`;
+    }
+    javascriptGenerator.forBlock['robot_outside'] = function(block: Block, generator: JavascriptGenerator) {
+        return ["isOutside()", Order.NONE];
     }
     javascriptGenerator.forBlock['robot_pen_down'] = function(block: Block, generator: JavascriptGenerator) {
         return "penState(true);\n";
@@ -186,6 +197,7 @@ $effect(() => {
             </value>
         </block>
         <block type="robot_stop"></block>
+        <block type="robot_outside"></block>
         <block type="robot_pen_down"></block>
         <block type="robot_pen_up"></block>
         <block type="clock_wait">

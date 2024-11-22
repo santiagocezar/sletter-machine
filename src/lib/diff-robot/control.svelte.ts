@@ -18,6 +18,8 @@ export class Robot {
     axisWidth = 50;
     length = 60;
 
+    outside = false;
+
     penDown = false;
 
     step(dt: number) {
@@ -53,6 +55,10 @@ export class Robot {
         this.penDown = state;
     }
 
+    isOutside() {
+        return this.outside
+    }
+
     reset() {
         this.stop();
 
@@ -81,6 +87,7 @@ export class CodeRunner {
             interpreter.createNativeFunction(
                 this.robot.setMotor.bind(this.robot)
             ));
+
         interpreter.setProperty(
             globalObject, 'stop',
             interpreter.createNativeFunction(
@@ -91,6 +98,12 @@ export class CodeRunner {
             globalObject, 'penState',
             interpreter.createNativeFunction(
                 this.robot.penState.bind(this.robot)
+            ));
+
+        interpreter.setProperty(
+            globalObject, 'isOutside',
+            interpreter.createNativeFunction(
+                this.robot.isOutside.bind(this.robot)
             ));
 
         const wait = interpreter.createAsyncFunction(

@@ -61,6 +61,10 @@ $effect(() => {
         }
 
         robot.step((elapsed - lastTime) / 1000)
+
+        robot.outside = (Math.abs(robot.positionX) > paintCanvas!.width / 2)
+            || (Math.abs(robot.positionY) > paintCanvas!.height / 2)
+
         lastTime = elapsed
 
         render(robot);
