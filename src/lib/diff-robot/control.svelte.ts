@@ -1,8 +1,8 @@
 import Interpreter from "js-interpreter";
 
 export class Robot {
-    powerL = 0;
-    powerR = 0;
+    powerL = $state(0);
+    powerR = $state(0);
 
     speedL = 0;
     speedR = 0;
@@ -20,22 +20,22 @@ export class Robot {
 
     penDown = false;
 
-    step() {
-        this.speedL += this.powerL / 10;
-        this.speedR += this.powerR / 10;
+    step(dt: number) {
+        this.speedL += this.powerL / 10 * dt * 60;
+        this.speedR += this.powerR / 10 * dt * 60;
 
-        this.rotation += (this.speedL - this.speedR) / this.axisWidth;
+        this.rotation += (this.speedL - this.speedR) / this.axisWidth * dt * 60;
 
-        const speedMagnitude = (this.speedL + this.speedR) / 2;
+        const speedMagnitude = (this.speedL + this.speedR) / 2 * dt * 60;
+
+        this.speedL *= Math.pow(.25, dt);
+        this.speedR *= Math.pow(.25, dt);
 
         this.speedX = speedMagnitude * Math.cos(this.rotation);
         this.speedY = speedMagnitude * Math.sin(this.rotation);
 
         this.positionX += this.speedX;
         this.positionY += this.speedY;
-
-        this.speedL *= .95;
-        this.speedR *= .95;
     }
 
     setMotor(side: "LEFT" | "RIGHT", power: number) {

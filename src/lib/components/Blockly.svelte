@@ -1,6 +1,5 @@
 <script lang="ts">
 import * as Blockly from 'blockly/core'
-import Theme from '@blockly/theme-modern';
 import * as es from 'blockly/msg/es'
 import * as libraryBlocks from 'blockly/blocks';
 
@@ -131,7 +130,8 @@ $effect(() => {
         },
         fontStyle: {
             family: 'Inter',
-        }
+        },
+        startHats: true
     })
     
     workspace = Blockly.inject(blocklyWrapper!, { theme, toolbox, renderer: "zelos" })
