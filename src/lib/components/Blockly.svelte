@@ -489,6 +489,9 @@ $effect(() => {
     margin: 0 4px 4px 4px;
     border-radius: 4px;
   }
+  .blocklyTreeLabel {
+  	font: inherit
+  }
 }
 
 
