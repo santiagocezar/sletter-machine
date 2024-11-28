@@ -1,5 +1,8 @@
 import Interpreter from "js-interpreter";
 
+export const ringRadius = 120;
+export const ringBorder = 10;
+
 export class Robot {
     powerL = $state(0);
     powerR = $state(0);
@@ -23,6 +26,7 @@ export class Robot {
     outside = false;
 
     penDown = false;
+    
 
     step(dt: number) {
         if (this.isWaiting())
@@ -59,9 +63,17 @@ export class Robot {
     penState(state: boolean) {
         this.penDown = state;
     }
-
+    
     isOutside() {
         return this.outside
+    }
+    
+    isOnBorder() {
+        const r2BorderStart = ringRadius ** 2;
+        const r2BorderEnd = (ringRadius + ringBorder) ** 2;
+        const r2Robot = this.positionX ** 2 + this.positionY ** 2;
+        
+        return r2BorderStart < r2Robot && r2Robot < r2BorderEnd;        
     }
 
     wait(ms: number) {
