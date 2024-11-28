@@ -1,5 +1,5 @@
 <script lang="ts">
-import * as Blockly from 'blockly/core'
+import Blockly from 'blockly/core'
 import * as es from 'blockly/msg/es'
 import * as libraryBlocks from 'blockly/blocks';
 
@@ -22,8 +22,12 @@ let toolbox: XMLDocument | undefined = $state()
 let workspace: Workspace
 
 class CustomCategory extends Blockly.ToolboxCategory {
-  constructor(...whatever) {
-    super(...whatever);
+  /**
+   * Constructor for a custom category.
+   * @override
+   */
+  constructor(categoryDef, toolbox, opt_parent) {
+    super(categoryDef, toolbox, opt_parent);
   }
   addColourBorder_(color: string){
     this.rowDiv_?.style.setProperty("--color", color);
@@ -82,6 +86,14 @@ $effect(() => {
             "tooltip": "Verdadero si el robot se encuentra fuera de la pantalla.",
             "helpUrl": "",
             "message0": "¿está afuera?",
+            "output": "Boolean",
+            "style": "robot_blocks"
+        },
+        {
+            "type": "robot_borderline",
+            "tooltip": "Verdadero si el robot se encuentra sobre el borde blanco del \"ring\".",
+            "helpUrl": "",
+            "message0": "¿está al borde?",
             "output": "Boolean",
             "style": "robot_blocks"
         },
@@ -152,6 +164,9 @@ $effect(() => {
     }
     javascriptGenerator.forBlock['robot_outside'] = function(block: Block, generator: JavascriptGenerator) {
         return ["isOutside()", Order.NONE];
+    }
+    javascriptGenerator.forBlock['robot_borderline'] = function(block: Block, generator: JavascriptGenerator) {
+        return ["isOnBorder()", Order.NONE];
     }
     javascriptGenerator.forBlock['robot_start'] = function(block: Block, generator: JavascriptGenerator) {
         return "";
@@ -260,7 +275,7 @@ $effect(() => {
               </shadow>
             </value>
         </block>
-        <block type="robot_outside"></block>
+        <block type="robot_borderline"></block>
         <block type="robot_pen_down"></block>
         <block type="robot_pen_up"></block>
       </category>

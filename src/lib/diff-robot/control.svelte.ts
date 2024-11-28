@@ -128,6 +128,7 @@ export class CodeRunner {
         bindFn("stop")
         bindFn("penState")
         bindFn("isOutside")
+        bindFn("isOnBorder")
         bindFn("wait")
     }
 
