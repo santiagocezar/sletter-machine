@@ -4,6 +4,9 @@ export const ringRadius = 120;
 export const ringBorder = 10;
 
 export class Robot {
+    // this is tied to svelte's state because
+    // it's fun to see the joystick move by it's
+    // own when executing.
     powerL = $state(0);
     powerR = $state(0);
 
@@ -27,6 +30,14 @@ export class Robot {
 
     penDown = false;
     
+
+    wait(ms: number) {
+        this.waiting = ms / 1000
+    }
+
+    isWaiting() {
+        return this.waiting > 0
+    }
 
     step(dt: number) {
         if (this.isWaiting())
@@ -74,14 +85,6 @@ export class Robot {
         const r2Robot = this.positionX ** 2 + this.positionY ** 2;
         
         return r2BorderStart < r2Robot && r2Robot < r2BorderEnd;        
-    }
-
-    wait(ms: number) {
-        this.waiting = ms / 1000
-    }
-
-    isWaiting() {
-        return this.waiting > 0
     }
 
     reset() {

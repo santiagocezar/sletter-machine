@@ -21,12 +21,26 @@ let toolbox: XMLDocument | undefined = $state()
 
 let workspace: Workspace
 
+class CustomCategory extends Blockly.ToolboxCategory {
+  constructor(...whatever) {
+    super(...whatever);
+  }
+  addColourBorder_(color: string){
+    this.rowDiv_?.style.setProperty("--color", color);
+  }
+}
+
+Blockly.registry.register(
+    Blockly.registry.Type.TOOLBOX_ITEM,
+    Blockly.ToolboxCategory.registrationName,
+    CustomCategory, true);
+
 $effect(() => {
     Blockly.setLocale(es as any)
     Blockly.defineBlocksWithJsonArray([
         {
             "type": "robot_set_power",
-            "tooltip": "",
+            "tooltip": "Enciende un motor para que ejerza cierta fuerza.",
             "helpUrl": "",
             "message0": "fuerza motor %1 al %2%%",
             "args0": [
@@ -56,7 +70,7 @@ $effect(() => {
         },
         {
             "type": "robot_stop",
-            "tooltip": "",
+            "tooltip": "Apaga todos los motores del robot, pero no se detiene de inmediato.",
             "helpUrl": "",
             "message0": "apagar motores",
             "previousStatement": null,
@@ -65,7 +79,7 @@ $effect(() => {
         },
         {
             "type": "robot_outside",
-            "tooltip": "",
+            "tooltip": "Verdadero si el robot se encuentra fuera de la pantalla.",
             "helpUrl": "",
             "message0": "¿está afuera?",
             "output": "Boolean",
@@ -73,7 +87,7 @@ $effect(() => {
         },
         {
             "type": "robot_pen_down",
-            "tooltip": "",
+            "tooltip": "Activa el dibujo.",
             "helpUrl": "",
             "message0": "bajar lapiz",
             "previousStatement": null,
@@ -82,7 +96,7 @@ $effect(() => {
         },
         {
             "type": "robot_pen_up",
-            "tooltip": "",
+            "tooltip": "Desactiva el dibujo.",
             "helpUrl": "",
             "message0": "subir lapiz",
             "previousStatement": null,
@@ -91,7 +105,7 @@ $effect(() => {
         },
         {
             "type": "robot_start",
-            "tooltip": "",
+            "tooltip": "Ejecuta el siguiente código solamente al iniciar el programa.",
             "helpUrl": "",
             "message0": "al inicio",
             "nextStatement": null,
@@ -99,10 +113,10 @@ $effect(() => {
         },
         {
             "type": "robot_loop",
-            "tooltip": "",
+            "tooltip": "Ejecuta el siguiente código repetidas veces hasta que se detenga el programa.",
             "helpUrl": "",
             "message0": "por siempre",
-            "message1": "hacer %1",
+            "message1": "%1",
             "args1": [
                 {
                     "type": "input_statement",
@@ -114,7 +128,7 @@ $effect(() => {
         },
         {
             "type": "clock_wait",
-            "tooltip": "",
+            "tooltip": "Suspende la ejecución durante una determinada cantidad de tiempo.",
             "helpUrl": "",
             "message0": "esperar %1 milisegundos",
             "args0": [
@@ -521,13 +535,29 @@ $effect(() => {
   .blocklyMainBackground {
     stroke: none !important;
   }
+  .blocklyTreeIcon {
+    width: 1em;
+    height: 1em;
+    border-radius: 1em;
+    background-color: var(--color);
+  }
   .blocklyTreeRow {
     height: auto;
     margin: 0 4px 4px 4px;
-    border-radius: 4px;
+    border-radius: .25rem;
+    border: 1px solid var(--color) !important;
+    height: 2rem;
+    place-content: center;
+    padding: 0 .5rem !important;
+    color: var(--color);
+  }
+  .blocklyToolboxDiv {
+    background-color: white;
+    border-right: 1px solid var(--border);
   }
   .blocklyTreeLabel {
-  	font: inherit
+  	font: inherit;
+  	font-weight: bold;
   }
 }
 

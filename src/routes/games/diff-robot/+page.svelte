@@ -121,14 +121,15 @@ main {
     grid-template-rows: minmax(0, min-content) minmax(0, min-content) minmax(0, 1fr);
     min-height: 0;
     height: 100%;
+    --border: #ddd;
 }
 .workspace {
     grid-row: span 3;
     display: grid;
+    grid-template-rows: subgrid;
 
-    border-top: 1px solid #ddd;
-    border-right: 1px solid #ddd;
-    grid-template-rows: min-content minmax(0, 1fr);
+    border-top: 1px solid var(--border);
+    border-right: 1px solid var(--border);
 
     /*> :global(*) {
         width: 100%;
@@ -137,14 +138,18 @@ main {
     :global(.info-content) {
         overflow: auto;
     }
+    :global([role="tabpanel"]) {
+        border-top: 1px solid var(--border);
+        grid-row: span 2;
+    }
     section {
         padding: 0 5rem 5rem 5rem;
         margin: 0 auto;
     }
 }
 .view-container {
-    border-top: 1px solid #ddd;
-    border-bottom: 1px solid #ddd;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
     width: min-content;
     margin: 0;
     padding: 0;
@@ -158,7 +163,7 @@ main {
     gap: 1rem;
 }
 .buttons {
-    border-top: 1px solid #ddd;
+    border-top: 1px solid var(--border);
     padding: .5rem;
     display: flex;
     gap: .5rem;
