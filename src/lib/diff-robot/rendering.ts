@@ -7,20 +7,8 @@ export function attachCanvas(canvas: HTMLCanvasElement, paintCanvas: HTMLCanvasE
     const w = paintCanvas.width;
     const h = paintCanvas.height;
     
-    paintCtx.fillStyle = "444";
-    paintCtx.beginPath()
-    paintCtx.arc(w / 2, h / 2, ringRadius + ringBorder + 1, 0, 2 * Math.PI)
-    paintCtx.fill()
-    paintCtx.fillStyle = "#ededed";
-    paintCtx.beginPath()
-    paintCtx.arc(w / 2, h / 2, ringRadius + ringBorder, 0, 2 * Math.PI)
-    paintCtx.fill()
-    paintCtx.fillStyle = "#444";
-    paintCtx.beginPath()
-    paintCtx.arc(w / 2, h / 2, ringRadius, 0, 2 * Math.PI)
-    paintCtx.fill()
     
-    function render(robot: Robot) {
+    function render(robot: Robot, prevX: number, prevY: number) {
         const w = paintCanvas.width;
         const h = paintCanvas.height;
 
@@ -29,12 +17,28 @@ export function attachCanvas(canvas: HTMLCanvasElement, paintCanvas: HTMLCanvasE
 
         ctx.clearRect(0, 0, w, h)
 
+        // ring
+        ctx.fillStyle = "444";
+        ctx.beginPath()
+        ctx.arc(w / 2, h / 2, ringRadius + ringBorder + 1, 0, 2 * Math.PI)
+        ctx.fill()
+        ctx.fillStyle = "#ededed";
+        ctx.beginPath()
+        ctx.arc(w / 2, h / 2, ringRadius + ringBorder, 0, 2 * Math.PI)
+        ctx.fill()
+        ctx.fillStyle = "#444";
+        ctx.beginPath()
+        ctx.arc(w / 2, h / 2, ringRadius, 0, 2 * Math.PI)
+        ctx.fill()
+        
         ctx.drawImage(paintCanvas, 0, 0, w, h)
+        
 
         if (robot.penDown) {
             paintCtx.strokeStyle = "#ff0044";
+            paintCtx.lineWidth = "3px";
             paintCtx.beginPath()
-            paintCtx.moveTo(x - robot.speedX, y - robot.speedY)
+            paintCtx.moveTo(prevX + w / 2, prevY + h / 2)
             paintCtx.lineTo(x, y)
             paintCtx.stroke()
         }
@@ -58,6 +62,10 @@ export function attachCanvas(canvas: HTMLCanvasElement, paintCanvas: HTMLCanvasE
         ctx.fillStyle = "#111122";
         ctx.fillRect(x - 10, y - robot.axisWidth / 2 - 5, 20, 10);
         ctx.fillRect(x - 10, y + robot.axisWidth / 2 - 5, 20, 10);
+        ctx.fillStyle = robot.isOnBorder() ? "lime" : "darkred";
+        ctx.beginPath()
+        ctx.arc(x + robot.length / 2, y, 4, 0, 2 * Math.PI)
+        ctx.fill()
         ctx.restore()
     }
 

@@ -80,9 +80,11 @@ export class Robot {
     }
     
     isOnBorder() {
+        const sensorX = (this.positionX + this.length / 2 * Math.cos(this.rotation))
+        const sensorY = (this.positionY + this.length / 2 * Math.sin(this.rotation))
         const r2BorderStart = ringRadius ** 2;
         const r2BorderEnd = (ringRadius + ringBorder) ** 2;
-        const r2Robot = this.positionX ** 2 + this.positionY ** 2;
+        const r2Robot = sensorX ** 2 + sensorY ** 2;
         
         return r2BorderStart < r2Robot && r2Robot < r2BorderEnd;        
     }

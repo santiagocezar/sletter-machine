@@ -47,6 +47,7 @@ function reset() {
     paintCanvas.getContext("2d").clearRect(0, 0, paintCanvas.width, paintCanvas.height)
 }
 
+const FRAME_TIME = 16.66
 $effect(() => {
     blocklyState = localStorage.getItem("blocky-temp") ?? "null"
     // code = localStorage.getItem("blocky-temp-code") ?? ""
@@ -54,18 +55,23 @@ $effect(() => {
     const render = attachCanvas(canvas!, paintCanvas!)
 
     let lastTime = 0
-
+    let simuElapsed = 0
+    
     const update = (elapsed: number) => {
-        while(!robot.isWaiting() && codeRunner.step()) {}
-
-        robot.step((elapsed - lastTime) / 1000)
-
+        const prevX = robot.positionX;
+        const prevY = robot.positionY;
+        while (simuElapsed < elapsed) {
+            simuElapsed += FRAME_TIME
+            while(!robot.isWaiting() && codeRunner.step()) {}
+            robot.step(FRAME_TIME / 1000)
+        }
+        render(robot, prevX, prevY);
+/*
         robot.outside = (Math.abs(robot.positionX) > paintCanvas!.width / 2)
-            || (Math.abs(robot.positionY) > paintCanvas!.height / 2)
+            || (Math.abs(robot.positionY) > paintCanvas!.height / 2)*/
 
         lastTime = elapsed
 
-        render(robot);
 
         requestAnimationFrame(update)
     }

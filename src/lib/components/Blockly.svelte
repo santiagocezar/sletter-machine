@@ -1,5 +1,5 @@
 <script lang="ts">
-import Blockly from 'blockly/core'
+import * as Blockly from 'blockly/core'
 import * as es from 'blockly/msg/es'
 import * as libraryBlocks from 'blockly/blocks';
 
@@ -21,25 +21,23 @@ let toolbox: XMLDocument | undefined = $state()
 
 let workspace: Workspace
 
-class CustomCategory extends Blockly.ToolboxCategory {
-  /**
-   * Constructor for a custom category.
-   * @override
-   */
-  constructor(categoryDef, toolbox, opt_parent) {
-    super(categoryDef, toolbox, opt_parent);
-  }
-  addColourBorder_(color: string){
-    this.rowDiv_?.style.setProperty("--color", color);
-  }
-}
-
-Blockly.registry.register(
-    Blockly.registry.Type.TOOLBOX_ITEM,
-    Blockly.ToolboxCategory.registrationName,
-    CustomCategory, true);
 
 $effect(() => {
+    Blockly.registry.register(
+        Blockly.registry.Type.TOOLBOX_ITEM,
+        Blockly.ToolboxCategory.registrationName,
+        class CustomCategory extends Blockly.ToolboxCategory {
+          /**
+          * Constructor for a custom category.
+          * @override
+          */
+          constructor(categoryDef, toolbox, opt_parent) {
+            super(categoryDef, toolbox, opt_parent);
+          }
+          addColourBorder_(color: string){
+            this.rowDiv_?.style.setProperty("--color", color);
+          }
+        }, true);
     Blockly.setLocale(es as any)
     Blockly.defineBlocksWithJsonArray([
         {
@@ -551,10 +549,17 @@ $effect(() => {
     stroke: none !important;
   }
   .blocklyTreeIcon {
+    display: block;
+    visibility: visible;
     width: 1em;
     height: 1em;
     border-radius: 1em;
+    margin-right: .25em;
     background-color: var(--color);
+    background-image: none;
+    .blocklyTreeSelected & {
+      background-color: white;
+    }
   }
   .blocklyTreeRow {
     height: auto;
@@ -564,7 +569,7 @@ $effect(() => {
     height: 2rem;
     place-content: center;
     padding: 0 .5rem !important;
-    color: var(--color);
+/*     color: var(--color); */
   }
   .blocklyToolboxDiv {
     background-color: white;
