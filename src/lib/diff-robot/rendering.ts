@@ -35,8 +35,8 @@ export function attachCanvas(canvas: HTMLCanvasElement, paintCanvas: HTMLCanvasE
         
 
         if (robot.penDown) {
-            paintCtx.strokeStyle = "#ff0044";
-            paintCtx.lineWidth = "3px";
+            paintCtx.strokeStyle = "#ff0044ff";
+            paintCtx.lineWidth = 3;
             paintCtx.beginPath()
             paintCtx.moveTo(prevX + w / 2, prevY + h / 2)
             paintCtx.lineTo(x, y)
