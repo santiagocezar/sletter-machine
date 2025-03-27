@@ -75,7 +75,7 @@ function mapClientPosition(clientX: number, clientY: number) {
 />
 
 <div
-    class="card joystick"
+    class="plastic joystick"
     onmousedown={whateverPointer(startMoving)}
     ontouchstart={whateverPointer(startMoving)}
     role="none"
@@ -98,17 +98,18 @@ function mapClientPosition(clientX: number, clientY: number) {
         background-color: white;
         inset: 1rem;
         transform: rotate(-45deg) scale(0.707);
-        border-radius: .5rem;
-        box-shadow: inset -.25rem .25rem .5rem #0004;
-        border: 1px solid #0004
+        border-radius: 1rem;
+        border: 2px solid #888;
     }
     .ball {
         position: absolute;
         pointer-events: none;
         aspect-ratio: 1 / 1;
-        width: 20%;
+        width: 50%;
         border-radius: 100%;
-        background: radial-gradient(circle at 60% 40%, #f00, #400);
+        background-color: #f00;
+        border: 2px solid #a00;
+        // background: radial-gradient(circle at 60% 40%, #f00, #400);
         translate: -50% -50%;
         left: 50%;
         top: 50%;

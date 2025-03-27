@@ -1,5 +1,5 @@
 <script>
-import '$lib/style/index.less'
+import '$lib/style/global.scss'
 import '$lib/style/reset.css'
 </script>
 
