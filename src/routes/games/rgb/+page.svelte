@@ -1,4 +1,6 @@
 <script lang="ts">
+    import Dial from "$lib/components/Dial.svelte";
+
 
 let light = $state(true);
 
@@ -13,7 +15,7 @@ let singleColor = $derived.by(() => {
     return components.map((_, i) => (
         "#" + components.map((n, j) => (
             i == j
-            ? (n ?? 0).toString(16).padStart(2, "0")
+            ? Math.round(n).toString(16).padStart(2, "0")
             : "00"
         )).join("")
     ))
@@ -37,7 +39,8 @@ $effect(() => {
     <div class="rgb view-container" data-light={light} style={`--c: ${color};`}>
         {#each components as comp, i}
             <div class="bulb" style={`--c: ${singleColor[i]};`}>
-                <input type="number" min="0" max="255" bind:value={components[i]}>
+                <Dial bind:value={() => components[i] / 255, (v) => components[i] = v * 255} />
+                <!-- <input type="number" min="0" max="255" bind:value={components[i]}> -->
             </div>
         {/each}
     </div>
@@ -91,9 +94,13 @@ $effect(() => {
         }
     }
     
-    input, &::before {
+    & > :global(*), &::before {
         grid-row-start: 1;
         grid-column-start: 1;
+    }
+
+    & > :global(*) {   
+        z-index: 2;
     }
 
     &::before {
