@@ -12,6 +12,8 @@ import { Tabs } from 'melt/builders'
 import Copy from '~icons/hugeicons/copy-01'
 import Flag from '~icons/hugeicons/flag-02'
 import Stop from '~icons/hugeicons/octagon'
+import Puzzle from '~icons/hugeicons/puzzle'
+import Info from '~icons/hugeicons/information-circle'
 
 let canvas: HTMLCanvasElement | undefined = $state();
 let paintCanvas: HTMLCanvasElement | undefined = $state();
@@ -89,8 +91,14 @@ const tabs = new Tabs<"blocks" | "info">({
 <main>
     <div class="workspace">
         <div class="tab-list" {...tabs.triggerList}>
-            <button class={{"palette-primary accent": tabs.value === "blocks"}} {...tabs.getTrigger("blocks")}>Bloques</button>
-            <button class={{"palette-primary accent": tabs.value === "info"}} {...tabs.getTrigger("info")}>Info</button>
+            <button class={{"palette-primary accent": tabs.value === "blocks"}} {...tabs.getTrigger("blocks")}>
+                <Puzzle />
+                Bloques
+            </button>
+            <button class={{"palette-primary accent": tabs.value === "info"}} {...tabs.getTrigger("info")}>
+                <Info />
+                Info
+            </button>
         </div>
         <div {...tabs.getContent("blocks")}>
             <Blockly bind:value={blocklyState} bind:code={code} />

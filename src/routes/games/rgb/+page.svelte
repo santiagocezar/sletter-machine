@@ -41,7 +41,7 @@ $effect(() => {
             </div>
         {/each}
     </div>
-	<button onclick={() => light = !light} class="btn">
+	<button onclick={() => light = !light} class="btn important">
 		{light ? "Encender" : "Apagar"} (barra espaciadora)
 	</button>
 </main>
@@ -77,7 +77,7 @@ $effect(() => {
         font-family: monospace;
         width: 4ch;
         border-radius: 1vmin;
-        background-color: white;
+        background-color: var(--bg1);
         -moz-appearance: textfield;
         appearance: textfield;
         z-index: 2;
