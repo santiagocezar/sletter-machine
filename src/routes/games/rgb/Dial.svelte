@@ -3,6 +3,9 @@
     import { cubicInOut } from "svelte/easing"
     import type { Action } from "svelte/action";
     
+    const HALF_GAP = 45
+    const HALF_GAP_RAD = 45 / 180 * Math.PI
+
     interface Props {
         value: number,
     }
@@ -11,14 +14,14 @@
 
     let angle = {
         get value() {
-            return (value * 2 - 1) * Math.PI
+            return (value * 2 - 1) * (Math.PI - HALF_GAP_RAD)
         },
         set value(angle: number) {
-            value = (angle / Math.PI + 1) / 2
+            value = (Math.max(Math.min(angle, Math.PI - HALF_GAP_RAD), HALF_GAP_RAD - Math.PI) / (Math.PI - HALF_GAP_RAD) + 1) / 2
         }
     }
 
-    const dial: Action = (base: HTMLElement) => {
+    const dial: Action<SVGSVGElement> = (base) => {
         let originX = 0, originY = 0;
         let baseSize = 0;
         
@@ -70,64 +73,61 @@
         }
     }
 </script>
-
-<div
-    class="dial"
-    role="none"
+    
+<svg
+    viewBox="-50 -50 100 100"
+    style="
+        --half-gap: {HALF_GAP}deg;
+        --phi: {angle.value - Math.PI / 2}rad;
+    "
     use:dial
 >
-    <p>{Math.round(value * 100)}</p>
-    <div class="base" style="--phi: {angle.value - Math.PI / 2}rad">
-        <div class="ball">
-        </div>
-    </div>
-</div>
-
+    <circle
+        cx="0"
+        cy="0"
+        r="40"
+        fill="none"
+        class="slider-border"
+        stroke="var(--bg4)"
+        stroke-linecap="round"
+        stroke-dasharray="{360 - HALF_GAP * 2} {HALF_GAP * 2}"
+        pathLength="360"
+        transform="rotate({90 + HALF_GAP})"
+    />
+    <circle
+        cx="0"
+        cy="0"
+        r="40"
+        fill="none"
+        class="slider-progress"
+        stroke="var(--text)"
+        stroke-linecap="round"
+        stroke-dasharray="{(360 - HALF_GAP * 2) * value} {360 - (360 - HALF_GAP * 2) * value} {HALF_GAP * 2}"
+        pathLength="360"
+        transform="rotate({90 + HALF_GAP})"
+    />
+    <rect x="-20" y="29" width="40" height="20" rx="10" fill="var(--bg4)" />
+    <text y="45" text-anchor="middle"  fill="var(--text)">
+        {Math.round(value * 100)}
+    </text> 
+</svg>
 
 <style lang="scss">
-    .dial {
-        position: relative;
-        aspect-ratio: 1 / 1;
-        width: 10rem;
+    svg {
+        --width: 1rem;
         touch-action: none;
-        border-radius: 100%;
-        --gradient: 2%;
-        background-color: var(--bg4); 
-    
-        & p {
-            position: absolute;
-            inset: 0;
+
+        & .slider-border {
+            stroke-width: var(--width);
+        }
+        & .slider-progress {
+            stroke-width: calc(var(--width) - 2px);
+        }
+        & text {
             font-variant-numeric: tabular-nums;
-            font-size: 2rem;
+            font-size: 1rem;
             text-align: center;
-            place-content: center;
-            z-index: 1;
-        }
-        & .base {
-            position: absolute;
-            /*background-image: radial-gradient(
-                #ffff, #fffa
-            );*/
-            inset: 12%;
-            display: block;
-            place-content: center;
-            border-radius: 100%;
-            background-color: var(--bg1); 
-            rotate: var(--phi);
-        }
-        & .ball {
-            position: absolute;
-            pointer-events: none;
-            aspect-ratio: 1 / 1;
-            width: 20%;
-            border-radius: 100%;
-            right: 0;
-            translate: 50% -50%;
-            background-color: var(--text);
-            /*background-image: radial-gradient(
-                #ff8, #ff8, #ff0
-            );*/
-    /*         border: 1px solid orange; */
+            line-height: 1;
         }
     }
     @media screen and (max-width: 60rem) {
