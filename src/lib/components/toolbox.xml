@@ -18,6 +18,7 @@
             </value>
         </block>
         <block type="robot_stop"></block>
+        <block type="robot_full_stop"></block>
         <block type="clock_wait">
             <value name="TIME">
                 <shadow type="math_number">

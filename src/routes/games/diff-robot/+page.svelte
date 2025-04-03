@@ -13,6 +13,8 @@ import Copy from '~icons/hugeicons/copy-01'
 import Flag from '~icons/hugeicons/flag-02'
 import Stop from '~icons/hugeicons/octagon'
 import Puzzle from '~icons/hugeicons/puzzle'
+import Save from '~icons/hugeicons/floppy-disk'
+import Open from '~icons/hugeicons/folder-open'
 import Info from '~icons/hugeicons/information-circle'
 
 let canvas: HTMLCanvasElement | undefined = $state();
@@ -41,12 +43,56 @@ function copyToClipboard() {
     navigator.clipboard.writeText(blocklyState)
 }
 
+const twoDigits = (n: number) => ("0" + n).slice(-2)
+
+function downloadFile() {
+    const now = new Date() 
+    const year = "" + now.getFullYear()
+    const month = twoDigits(now.getMonth() + 1)
+    const day = twoDigits(now.getDate())
+    const hour = twoDigits(now.getHours())
+    const min = twoDigits(now.getMinutes())
+    const sec = twoDigits(now.getSeconds())
+
+    const stateBlob = new Blob([blocklyState])
+    
+    const a = document.createElement("a")
+
+    a.href = URL.createObjectURL(stateBlob)
+    a.download = `bloques-${year}${month}${day}${hour}${min}${sec}.json`
+    document.body.appendChild(a);
+
+    a.click()
+
+    document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+}
+
+function openFile(e: Event) {
+    if (!(e.target instanceof HTMLInputElement)) return
+
+    const file = e.target.files?.[0]
+
+    if (!file) return
+
+    const reader = new FileReader()
+
+    reader.onload = (e) => {
+        const res = (e.target?.result)?.toString()
+        if (res) {
+            blocklyState = res
+        } 
+    }
+
+    reader.readAsText(file)
+}
+
 function reset() {
     codeRunner.stop()
     robot.reset()
 
     // should probably move this somewhere else but eh.
-    paintCanvas!.getContext("2d").clearRect(0, 0, paintCanvas!.width, paintCanvas!.height)
+    paintCanvas!.getContext("2d")!.clearRect(0, 0, paintCanvas!.width, paintCanvas!.height)
 }
 
 const FRAME_TIME = 16.66
@@ -64,7 +110,7 @@ $effect(() => {
         const prevY = robot.positionY;
         while (simuElapsed < elapsed) {
             simuElapsed += FRAME_TIME
-            while(!robot.isWaiting() && codeRunner.step()) {}
+            while(codeRunner.step()) {}
             robot.step(FRAME_TIME / 1000)
         }
         render(robot, prevX, prevY);
@@ -110,9 +156,13 @@ const tabs = new Tabs<"blocks" | "info">({
         </div>
     </div>
     <div class="buttons">
-        <button class="btn" onclick={copyToClipboard}>
-            <Copy />
+        <button onclick={downloadFile}>
+            <Save /> Descargar
         </button>
+        <label class="button">
+            <input type="file" onchange={openFile}>
+            <Open /> Abrir
+        </label>
         <div class="expand"></div>
         <button class="accent palette-secondary" onclick={runCode}>
             <Flag />
@@ -282,5 +332,8 @@ main {
 }
 input:checked + .thumb {
     left: calc(100% - var(--offset) - var(--thumb-size));
+}
+input[type="file"] {
+    display: none;
 }
 </style>

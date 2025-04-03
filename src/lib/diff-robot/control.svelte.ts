@@ -1,5 +1,11 @@
 import Interpreter from "js-interpreter";
 
+const ANGULAR_ACCEL = 6
+const SPEED_MULT = 60
+
+const DRAG = 0.25
+const FRICTION = 1
+
 export const ringRadius = 120;
 export const ringBorder = 10;
 
@@ -25,6 +31,8 @@ export class Robot {
     length = 60;
 
     waiting = 0;
+    
+    waitingToStop = false;
 
     outside = false;
 
@@ -36,6 +44,12 @@ export class Robot {
     }
 
     isWaiting() {
+        if (this.waitingToStop) {
+            return (
+                this.waitingToStop = this.speedX ** 2 + this.speedY ** 2 > 0.01
+            )
+        }
+
         return this.waiting > 0
     }
 
@@ -43,15 +57,18 @@ export class Robot {
         if (this.isWaiting())
             this.waiting -= dt
 
-        this.speedL += this.powerL / 10 * dt * 60;
-        this.speedR += this.powerR / 10 * dt * 60;
+        this.speedL += this.powerL * dt * ANGULAR_ACCEL;
+        this.speedR += this.powerR * dt * ANGULAR_ACCEL;
 
-        this.rotation += (this.speedL - this.speedR) / this.axisWidth * dt * 60;
+        this.rotation += (this.speedL - this.speedR) / this.axisWidth * dt * SPEED_MULT;
 
-        const speedMagnitude = (this.speedL + this.speedR) / 2 * dt * 60;
+        const speedMagnitude = (this.speedL + this.speedR) / 2 * dt * SPEED_MULT;
 
-        this.speedL *= Math.pow(.25, dt);
-        this.speedR *= Math.pow(.25, dt);
+        this.speedL *= Math.pow(DRAG, dt);
+        this.speedR *= Math.pow(DRAG, dt);
+
+        this.speedL = Math.sign(this.speedL) * Math.max(0, Math.abs(this.speedL - FRICTION * dt));
+        this.speedR = Math.sign(this.speedR) * Math.max(0, Math.abs(this.speedR - FRICTION * dt));
 
         this.speedX = speedMagnitude * Math.cos(this.rotation);
         this.speedY = speedMagnitude * Math.sin(this.rotation);
@@ -70,6 +87,10 @@ export class Robot {
         this.powerR = 0;
     }
 
+    fullStop() {
+        this.stop()
+        this.waitingToStop = true
+    }
 
     penState(state: boolean) {
         this.penDown = state;
@@ -128,6 +149,7 @@ export class CodeRunner {
 
         bindFn("setMotor")
         bindFn("stop")
+        bindFn("fullStop")
         bindFn("penState")
         bindFn("isOutside")
         bindFn("isOnBorder")
@@ -145,6 +167,9 @@ export class CodeRunner {
 
     step(): boolean {
         if (!this.interpreter)
+            return false
+        
+        if (this.robot.isWaiting())
             return false
 
         if (!this.interpreter.step()) {
