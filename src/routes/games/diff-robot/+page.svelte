@@ -24,9 +24,12 @@ let penDown = $state(true)
 
 let code: string = $state("");
 let blocklyState: string = $state("null");
+let highlightBlock: string | null = $state(null);
 
 const robot = new Robot()
-const codeRunner = new CodeRunner(robot);
+const codeRunner = new CodeRunner(robot, (id) => {
+    highlightBlock = id
+});
 
 $effect(() => { robot.penDown = penDown })
 $effect(() => {
@@ -146,7 +149,11 @@ const tabs = new Tabs<"blocks" | "info">({
             </button>
         </div>
         <div {...tabs.getContent("blocks")}>
-            <Blockly bind:value={blocklyState} bind:code={code} />
+            <Blockly 
+                bind:value={blocklyState}
+                bind:code={code} 
+                {highlightBlock}
+            />
         </div>
         <div class="info-content" {...tabs.getContent("info")}>
             <article>

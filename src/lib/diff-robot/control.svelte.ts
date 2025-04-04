@@ -1,3 +1,4 @@
+//@ts-expect-error
 import Interpreter from "js-interpreter";
 
 const ANGULAR_ACCEL = 6
@@ -147,9 +148,11 @@ export class CodeRunner {
     robot: Robot
     interpreter: Interpreter | null = null;
     callback = () => {}
+    highlightCallback: (id: string | null) => void
 
-    constructor(forRobot: Robot) {
+    constructor(forRobot: Robot, highlightCallback: (id: string | null) => void) {
         this.robot = forRobot
+        this.highlightCallback = highlightCallback
     }
 
     initApi = (interpreter: Interpreter, globalObject: any) => {
@@ -167,6 +170,12 @@ export class CodeRunner {
         bindFn("isOutside")
         bindFn("isOnBorder")
         bindFn("wait")
+
+        interpreter.setProperty(
+            globalObject, "highlightBlock",
+            interpreter.createNativeFunction(
+                this.highlightCallback
+            ));
     }
 
     runCode(code: string) {

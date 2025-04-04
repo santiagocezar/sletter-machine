@@ -15,9 +15,10 @@
     interface Props {
         value: string;
         code: string;
+        highlightBlock: string | null;
     }
 
-    let { value = $bindable(), code = $bindable() }: Props = $props();
+    let { value = $bindable(), code = $bindable(), highlightBlock }: Props = $props();
 
     let updating = $state(false);
 
@@ -43,6 +44,11 @@
             }
             updating = false;
         });
+
+        $effect(() => {
+            console.log(`${highlightBlock} (${typeof highlightBlock})`)
+            workspace.highlightBlock(highlightBlock)
+        })
     }
 
 </script>

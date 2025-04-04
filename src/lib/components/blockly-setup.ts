@@ -200,6 +200,7 @@ export default function blocklySetup(blocklyWrapper: HTMLElement): Workspace {
     Blockly.setLocale(es as any);
     Blockly.defineBlocksWithJsonArray(BLOCKS as unknown as any[]);
 
+    javascriptGenerator.STATEMENT_PREFIX = 'highlightBlock(%1);\n';
     Object.assign(javascriptGenerator.forBlock, GENERATORS)
 
     const theme = Blockly.Theme.defineTheme("modern2", {
