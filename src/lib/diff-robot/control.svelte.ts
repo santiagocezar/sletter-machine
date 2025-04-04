@@ -46,16 +46,27 @@ export class Robot {
     isWaiting() {
         if (this.waitingToStop) {
             return (
-                this.waitingToStop = this.speedX ** 2 + this.speedY ** 2 > 0.01
+                this.waitingToStop = Math.abs(this.speedL) + Math.abs(this.speedR) > 0.01
             )
         }
 
         return this.waiting > 0
     }
 
-    step(dt: number) {
-        if (this.isWaiting())
-            this.waiting -= dt
+    /**
+     * Make the robot tick
+     * @param dt time since last frame in seconds
+     * @returns the actual duration of the tick, for partial frames
+     */
+    step(dt: number): number {
+        if (this.waiting > 0) {
+            if (this.waiting < dt) {
+                dt = this.waiting
+                this.waiting = 0    
+            } else {
+                this.waiting -= dt
+            }
+        }
 
         this.speedL += this.powerL * dt * ANGULAR_ACCEL;
         this.speedR += this.powerR * dt * ANGULAR_ACCEL;
@@ -67,14 +78,16 @@ export class Robot {
         this.speedL *= Math.pow(DRAG, dt);
         this.speedR *= Math.pow(DRAG, dt);
 
-        this.speedL = Math.sign(this.speedL) * Math.max(0, Math.abs(this.speedL - FRICTION * dt));
-        this.speedR = Math.sign(this.speedR) * Math.max(0, Math.abs(this.speedR - FRICTION * dt));
+        this.speedL = Math.sign(this.speedL) * Math.max(0, Math.abs(this.speedL) - FRICTION * dt);
+        this.speedR = Math.sign(this.speedR) * Math.max(0, Math.abs(this.speedR) - FRICTION * dt);
 
         this.speedX = speedMagnitude * Math.cos(this.rotation);
         this.speedY = speedMagnitude * Math.sin(this.rotation);
 
         this.positionX += this.speedX;
         this.positionY += this.speedY;
+
+        return dt
     }
 
     setMotor(side: "LEFT" | "RIGHT", power: number) {

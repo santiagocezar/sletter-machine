@@ -109,9 +109,8 @@ $effect(() => {
         const prevX = robot.positionX;
         const prevY = robot.positionY;
         while (simuElapsed < elapsed) {
-            simuElapsed += FRAME_TIME
             while(codeRunner.step()) {}
-            robot.step(FRAME_TIME / 1000)
+            simuElapsed += robot.step(FRAME_TIME / 1000) * 1000
         }
         render(robot, prevX, prevY);
 /*
