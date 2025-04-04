@@ -16,6 +16,7 @@ import Puzzle from '~icons/hugeicons/puzzle'
 import Save from '~icons/hugeicons/floppy-disk'
 import Open from '~icons/hugeicons/folder-open'
 import Info from '~icons/hugeicons/information-circle'
+import FullScreen from '~icons/hugeicons/full-screen'
 
 let canvas: HTMLCanvasElement | undefined = $state();
 let paintCanvas: HTMLCanvasElement | undefined = $state();
@@ -25,6 +26,7 @@ let penDown = $state(true)
 let code: string = $state("");
 let blocklyState: string = $state("null");
 let highlightBlock: string | null = $state(null);
+let fullscreen: boolean = $state(false);
 
 const robot = new Robot()
 const codeRunner = new CodeRunner(robot, (id) => {
@@ -98,6 +100,10 @@ function reset() {
     paintCanvas!.getContext("2d")!.clearRect(0, 0, paintCanvas!.width, paintCanvas!.height)
 }
 
+function toggleFullscreen() {
+    fullscreen = !fullscreen
+}
+
 const FRAME_TIME = 16.66
 $effect(() => {
     blocklyState = localStorage.getItem("blocky-temp") ?? "null"
@@ -136,7 +142,7 @@ const tabs = new Tabs<"blocks" | "info">({
 })
 </script>
 
-<main>
+<main class={{ fullscreen }}>
     <div class="workspace">
         <div class="tab-list" {...tabs.triggerList}>
             <button class={{"palette-primary accent": tabs.value === "blocks"}} {...tabs.getTrigger("blocks")}>
@@ -161,26 +167,31 @@ const tabs = new Tabs<"blocks" | "info">({
             </article>
         </div>
     </div>
-    <div class="buttons">
-        <button onclick={downloadFile}>
-            <Save /> Descargar
-        </button>
-        <label class="button">
-            <input type="file" onchange={openFile}>
-            <Open /> Abrir
-        </label>
-        <div class="expand"></div>
-        <button class="accent palette-secondary" onclick={runCode}>
-            <Flag />
-        </button>
-        <button class="accent palette-evil" onclick={reset}>
-            <Stop />
-        </button>
+    <div class="view">
+        <div class="buttons">
+            <button onclick={downloadFile}>
+                <Save /> Descargar
+            </button>
+            <label class="button">
+                <input type="file" onchange={openFile}>
+                <Open /> Abrir
+            </label>
+            <div class="expand"></div>
+            <button class="" onclick={toggleFullscreen}>
+                <FullScreen />
+            </button>
+            <button class="accent palette-secondary" onclick={runCode}>
+                <Flag />
+            </button>
+            <button class="accent palette-evil" onclick={reset}>
+                <Stop />
+            </button>
+        </div>
+        <div class="view-container">
+            <canvas style="display: none;" bind:this={paintCanvas} width="600" height="300"></canvas>
+            <canvas bind:this={canvas} width="600" height="300"></canvas>
+        </div>
     </div>
-    <div class="view-container">
-        <canvas style="display: none;" bind:this={paintCanvas} width="600" height="300"></canvas>
-        <canvas bind:this={canvas} width="600" height="300"></canvas>
-	</div>
     <div class="actions">
         <div class="joystick">
             <DiagonalJoystick bind:x={robot.powerL} bind:y={robot.powerR} />
@@ -205,15 +216,34 @@ const tabs = new Tabs<"blocks" | "info">({
 main {
     display: grid;
     grid-template-columns: 1fr min-content;
-    grid-template-rows: minmax(0, min-content) minmax(0, min-content) minmax(0, 1fr);
+    grid-template-rows: minmax(0, min-content) minmax(0, 1fr);
     min-height: 0;
     height: 100%;
     --border: var(--bg4);
 }
+.fullscreen {
+    & .workspace {
+        visibility: hidden;
+        opacity: 0;
+    }
+    & .actions {
+        visibility: hidden;
+        opacity: 0;
+    }
+    & .view {
+        grid-column: 1 / -1;
+        grid-row: 1 / -1;
+
+        & .view-container, & canvas {
+            width: 100%;
+            // height: 100%;
+        }
+    }
+}
 .workspace {
     grid-row: span 3;
     display: grid;
-    grid-template-rows: subgrid;
+    grid-template-rows: minmax(0, min-content) minmax(0, 1fr);
 
     border-top: 1px solid var(--border);
     border-right: 1px solid var(--border);
@@ -260,7 +290,7 @@ main {
     grid-auto-columns: 1fr;
     grid-auto-flow: column;
     align-items: center;
-    padding: 0 .5rem;
+    padding: .5rem;
     gap: .5rem;
 }
 .actions {
