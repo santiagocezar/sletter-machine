@@ -2,8 +2,7 @@
 import info from './info.md?raw'
 
 import Blockly from "$lib/components/Blockly.svelte";
-import { Robot, CodeRunner } from "$lib/diff-robot/control.svelte";
-import { attachCanvas } from "$lib/diff-robot/rendering";
+import { Robot, CodeRunner, ringBorder, ringRadius } from "$lib/diff-robot/control.svelte";
 import { marked } from 'marked';
 import DiagonalJoystick from '$lib/components/DiagonalJoystick.svelte';
 import { untrack } from 'svelte';
@@ -18,8 +17,8 @@ import Open from '~icons/hugeicons/folder-open'
 import Info from '~icons/hugeicons/information-circle'
 import FullScreen from '~icons/hugeicons/full-screen'
 
-let canvas: HTMLCanvasElement | undefined = $state();
-let paintCanvas: HTMLCanvasElement | undefined = $state();
+const CANVAS_W = 600
+const CANVAS_H = 300
 
 let penDown = $state(true)
 
@@ -27,6 +26,8 @@ let code: string = $state("");
 let blocklyState: string = $state("null");
 let highlightBlock: string | null = $state(null);
 let fullscreen: boolean = $state(false);
+
+let paintCtx: CanvasRenderingContext2D | undefined = undefined;
 
 const robot = new Robot()
 const codeRunner = new CodeRunner(robot, (id) => {
@@ -96,8 +97,7 @@ function reset() {
     codeRunner.stop()
     robot.reset()
 
-    // should probably move this somewhere else but eh.
-    paintCanvas!.getContext("2d")!.clearRect(0, 0, paintCanvas!.width, paintCanvas!.height)
+    paintCtx?.clearRect(0, 0, CANVAS_W, CANVAS_H)
 }
 
 function toggleFullscreen() {
@@ -109,8 +109,6 @@ $effect(() => {
     blocklyState = localStorage.getItem("blocky-temp") ?? "null"
     // code = localStorage.getItem("blocky-temp-code") ?? ""
 
-    const render = attachCanvas(canvas!, paintCanvas!)
-
     let lastTime = 0
     let simuElapsed = 0
     
@@ -121,13 +119,22 @@ $effect(() => {
             while(codeRunner.step()) {}
             simuElapsed += robot.step(FRAME_TIME / 1000) * 1000
         }
-        render(robot, prevX, prevY);
-/*
-        robot.outside = (Math.abs(robot.positionX) > paintCanvas!.width / 2)
-            || (Math.abs(robot.positionY) > paintCanvas!.height / 2)*/
+
+        if (paintCtx) {
+            const x = robot.positionX + CANVAS_W / 2;
+            const y = robot.positionY + CANVAS_H / 2;
+    
+            if (robot.penDown) {
+                paintCtx.strokeStyle = "#ff0044ff";
+                paintCtx.lineWidth = 3;
+                paintCtx.beginPath()
+                paintCtx.moveTo(prevX + CANVAS_W / 2, prevY + CANVAS_H / 2)
+                paintCtx.lineTo(x, y)
+                paintCtx.stroke()
+            }
+        }
 
         lastTime = elapsed
-
 
         requestAnimationFrame(update)
     }
@@ -136,6 +143,10 @@ $effect(() => {
         update(lastTime);
     })
 })
+
+function paintCanvas(node: HTMLCanvasElement) {
+    paintCtx = node.getContext("2d")!;
+}
 
 const tabs = new Tabs<"blocks" | "info">({
     value: "blocks"
@@ -188,8 +199,40 @@ const tabs = new Tabs<"blocks" | "info">({
             </button>
         </div>
         <div class="view-container">
-            <canvas style="display: none;" bind:this={paintCanvas} width="600" height="300"></canvas>
-            <canvas bind:this={canvas} width="600" height="300"></canvas>
+            <svg viewBox="-{CANVAS_W / 2} -{CANVAS_H / 2} {CANVAS_W} {CANVAS_H}">
+                <circle 
+                    fill="#ededed"
+                    cx="0" cy="0" r={ringRadius + ringBorder}
+                    stroke="#444"
+                    stroke-width="1"
+                ></circle>
+                <circle 
+                    fill="#444"
+                    cx="0" cy="0" r={ringRadius}
+                ></circle>
+            </svg>
+            <canvas use:paintCanvas width={CANVAS_W} height={CANVAS_H}></canvas>
+            <svg viewBox="-{CANVAS_W / 2} -{CANVAS_H / 2} {CANVAS_W} {CANVAS_H}">
+                <g transform="translate({robot.positionX} {robot.positionY}) rotate({robot.rotation / Math.PI * 180})">
+                    <path
+                        fill="#ffaa10" stroke="white"
+                        d="
+                            M 0 {robot.axisWidth / 2}
+                            l {robot.length / 2} 0
+                            l {robot.length / 2} -{robot.axisWidth / 2}
+                            l -{robot.length / 2} -{robot.axisWidth / 2}
+                            l -{robot.length / 2} 0
+                            z
+                        "
+                    ></path>
+                    <rect fill="#111122" x="-10" y={robot.axisWidth / 2 - 5} width="20" height="10"></rect>
+                    <rect fill="#111122" x="-10" y={-robot.axisWidth / 2 - 5} width="20" height="10"></rect>
+                    <circle 
+                        fill={robot.isOnBorder() ? "lime" : "darkred"}
+                        cx={robot.length / 2} cy="0" r={4}
+                    ></circle>
+                </g>
+            </svg>
         </div>
     </div>
     <div class="actions">
@@ -231,8 +274,7 @@ main {
         opacity: 0;
     }
     & .view {
-        grid-column: 1 / -1;
-        grid-row: 1 / -1;
+        grid-area: 1 / 1 / -1 / -1;
 
         & .view-container, & canvas {
             width: 100%;
@@ -265,13 +307,19 @@ main {
     }
 }
 .view-container {
+    display: grid;
+    grid-template: 1fr / 1fr;
     border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
-    width: min-content;
+    width: 100%;
     margin: 0;
     padding: 0;
     border-radius: 0;
     overflow: visible;
+
+    & * {
+        grid-area: 1 / 1 / -1 / -1;
+    }
 }
 .buttons {
     border-top: 1px solid var(--border);

@@ -26,9 +26,9 @@
                 </shadow>
             </value>
         </block>
-        <block type="robot_borderline"></block>
         <block type="robot_pen_down"></block>
         <block type="robot_pen_up"></block>
+        <block type="robot_borderline"></block>
     </category>
     <category name="Lógica" categorystyle="logic_category">
         <block type="controls_if"></block>

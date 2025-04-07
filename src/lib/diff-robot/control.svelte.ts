@@ -2,10 +2,14 @@
 import Interpreter from "js-interpreter";
 
 const ANGULAR_ACCEL = 6
+// const ANGULAR_ACCEL = 12
 const SPEED_MULT = 60
 
 const DRAG = 0.25
 const FRICTION = 1
+// const FRICTION = 4
+
+
 
 export const ringRadius = 120;
 export const ringBorder = 10;
@@ -20,14 +24,14 @@ export class Robot {
     speedL = 0;
     speedR = 0;
 
-    positionX = 0;
-    positionY = 0;
+    positionX = $state(0);
+    positionY = $state(0);
 
     // not local because of the render func @ rendering.ts
     speedX = 0;
     speedY = 0;
 
-    rotation = 0;
+    rotation = $state(0);
     axisWidth = 50;
     length = 60;
 

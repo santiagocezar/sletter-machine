@@ -233,6 +233,9 @@ export default function blocklySetup(blocklyWrapper: HTMLElement): Workspace {
     const workspace = Blockly.inject(blocklyWrapper!, {
         theme,
         toolbox: toolboxXML,
+        zoom: {
+            startScale: .8
+        },
         renderer: "zelos",
     });
 
