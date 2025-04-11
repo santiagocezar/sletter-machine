@@ -69,6 +69,6 @@ $effect(() => {
 	</button>
 </main>
 
-<style lang="less">
-@import "./slots.less";
+<style lang="scss">
+@import "./slots.scss";
 </style>

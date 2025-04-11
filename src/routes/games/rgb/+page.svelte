@@ -4,7 +4,7 @@
 
 let light = $state(true);
 
-let components = $state([255, 255, 255])
+let components = $state([128, 128, 128])
 
 let color = $derived.by(() => {
     return "#" + components.map(n => (n ?? 0).toString(16).padStart(2, "0")).join("")

@@ -52,8 +52,8 @@ $effect(() => {
 	</button>
 </main>
 
-<style>
-@import "../color-slots/slots.less";
+<style lang="scss">
+@import "../color-slots/slots.scss";
 
 .slot-machine {
 	background-image: linear-gradient(to bottom, maroon, crimson, maroon);
