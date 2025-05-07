@@ -8,6 +8,8 @@ import logo from '$lib/assets/logo.svg'
     <a href={base}>
         <img src={logo} alt="Eduactive logo" />
     </a>
+    <a href="https://santiago.cez.ar">© Santiago Cézar</a>
+
 </header>
 
 <slot></slot>
@@ -35,6 +37,7 @@ img {
 
 header {
     display: flex;
+    justify-content: space-between;
     gap: 1rem;
     padding: .25rem 1rem;
 }
