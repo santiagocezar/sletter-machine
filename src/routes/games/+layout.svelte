@@ -5,7 +5,7 @@ import logo from '$lib/assets/logo.svg'
 
 <div class="root">
 <header>
-    <a href={base}>
+    <a href="/">
         <img src={logo} alt="Eduactive logo" />
     </a>
     <a href="https://santiago.cez.ar">© Santiago Cézar</a>
