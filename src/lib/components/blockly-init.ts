@@ -106,18 +106,18 @@ export function createBlockly<B extends BlockDefs>(opts: CreateBlocklyOpts<B>) {
             workspace.addChangeListener((e) => {
                 Blockly.Events.disableOrphans(e)
                 
-                if ([
-                    Blockly.Events.BLOCK_CHANGE,
-                    Blockly.Events.BLOCK_CREATE,
-                    Blockly.Events.BLOCK_DELETE,
-                ].includes(e.type as any)) {
+                // if ([
+                //     Blockly.Events.BLOCK_CHANGE,
+                //     Blockly.Events.BLOCK_CREATE,
+                //     Blockly.Events.BLOCK_DELETE,
+                // ].includes(e.type as any)) {
                     const code = javascriptGenerator.workspaceToCode(workspace);
                     const state = JSON.stringify(
                         Blockly.serialization.workspaces.save(workspace),
                     );
 
                     opts.onChange(state, code)
-                }
+                // }
             });
             
             let cb: WorkspaceCallback | undefined
