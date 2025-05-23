@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { SvelteWebSocket } from "$lib/ws.svelte";
     import Dial from "./Dial.svelte";
 
 
@@ -8,6 +9,24 @@ let components = $state([128, 128, 128])
 
 let color = $derived.by(() => {
     return "#" + components.map(n => (n ?? 0).toString(16).padStart(2, "0")).join("")
+})
+
+const ws = new SvelteWebSocket("http://192.168.0.18/ws")
+
+let lastController = new AbortController()
+
+$effect(() => {
+    const data = new Uint8Array(components).buffer
+    const conn = ws.connection
+    if(conn) {
+        conn.send(data)
+    }
+    // lastController.abort()
+    // lastController = new AbortController()
+    // fetch(`http://192.168.64.179/?r=${components[0]}&g=${components[1]}&b=${components[2]}`, {
+    //     signal: lastController.signal,
+    // })
+
 })
 
 const componentColor = ["#f00", "#0f0", "#00f"]

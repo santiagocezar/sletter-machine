@@ -41,8 +41,7 @@ export class Robot {
 
     outside = false;
 
-    penDown = false;
-    
+    penDown = $state(true);
 
     wait(ms: number) {
         this.waiting = ms / 1000

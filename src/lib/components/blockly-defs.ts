@@ -1,16 +1,9 @@
-import * as Blockly from "blockly/core";
-import * as es from "blockly/msg/es";
+import { Order } from "blockly/javascript";
+import type { GeneratorsFor } from "./blockly-init";
 
-import {
-    javascriptGenerator,
-    Order,
-    type JavascriptGenerator,
-} from "blockly/javascript";
-import type { Workspace, Block } from "blockly";
+export { default as TOOLBOX } from "./toolbox.xml?raw" 
 
-import toolboxXML from "./toolbox.xml?raw"
-
-const BLOCKS = [
+export const BLOCKS = [
     {
         type: "robot_set_power",
         tooltip: "Enciende un motor para que ejerza cierta fuerza.",
@@ -135,10 +128,7 @@ const BLOCKS = [
     },
 ] as const;
 
-type BlockIDs = (typeof BLOCKS)[number]["type"]
-type GeneratorHandler = (block: Block, generator: JavascriptGenerator) => [string, number] | string | null
-
-const GENERATORS: Record<BlockIDs, GeneratorHandler> = {
+export const GENERATORS: GeneratorsFor<typeof BLOCKS> = {
     robot_set_power(block, generator) {
         const side = block.getFieldValue("SIDE");
         // TODO: change Order.ATOMIC to the correct operator precedence strength
@@ -177,71 +167,4 @@ const GENERATORS: Record<BlockIDs, GeneratorHandler> = {
     robot_full_stop(block, generator) {
         return `fullStop();\n`;
     },
-}
-
-export default function blocklySetup(blocklyWrapper: HTMLElement): Workspace {
-    Blockly.registry.register(
-        Blockly.registry.Type.TOOLBOX_ITEM,
-        Blockly.ToolboxCategory.registrationName,
-        class CustomCategory extends Blockly.ToolboxCategory {
-            /**
-             * Constructor for a custom category.
-             * @override
-             */
-            constructor(categoryDef, toolbox, opt_parent) {
-                super(categoryDef, toolbox, opt_parent);
-            }
-            addColourBorder_(color: string) {
-                this.rowDiv_?.style.setProperty("--color", color);
-            }
-        },
-        true,
-    );
-    Blockly.setLocale(es as any);
-    Blockly.defineBlocksWithJsonArray(BLOCKS as unknown as any[]);
-
-    javascriptGenerator.STATEMENT_PREFIX = 'highlightBlock(%1);\n';
-    Object.assign(javascriptGenerator.forBlock, GENERATORS)
-
-    const theme = Blockly.Theme.defineTheme("modern2", {
-        name: "modern2",
-        base: Blockly.Themes.Zelos,
-        componentStyles: {
-            workspaceBackgroundColour: "var(--bg3)",
-            toolboxBackgroundColour: "var(--bg2)",
-            flyoutBackgroundColour: "var(--bg2)",
-        },
-        blockStyles: {
-            robot_blocks: {
-                colourPrimary: "#ff6c03",
-            },
-            robot_control: {
-                colourPrimary: "#414088",
-            },
-        },
-        categoryStyles: {
-            robot_category: {
-                colour: "#ff6c03",
-            },
-        },
-        fontStyle: {
-            family: "Inter",
-        },
-        startHats: true,
-    });
-
-    const workspace = Blockly.inject(blocklyWrapper!, {
-        theme,
-        toolbox: toolboxXML,
-        zoom: {
-            startScale: .8
-        },
-        renderer: "zelos",
-    });
-
-    // console.log(JSON.stringify(workspace.options.languageTree))
-
-    workspace.addChangeListener(Blockly.Events.disableOrphans);
-
-    return workspace
 }

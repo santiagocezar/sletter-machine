@@ -2,8 +2,8 @@
 import smears from '$lib/assets/smears.svg'
 
 const slots = [
-	"ZCGJLOUV".split(''),
-	"SPIHADEFMWNT".split(''),
+	"CGJLOUV".split(''),
+	"ZSPIHADEFMWNT".split(''),
 	"XRQÑBKY".split(''),
 ]
 

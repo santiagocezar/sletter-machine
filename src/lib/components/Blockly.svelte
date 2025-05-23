@@ -35,10 +35,12 @@
 
         $effect(() => {
             const blocklyState = JSON.parse(value);
+            console.log("parsing state")
             const u = untrack(() => updating);
             if (!u && blocklyState) {
                 Blockly.Events.disable();
                 Blockly.serialization.workspaces.load(blocklyState, workspace);
+                console.log("loaded workspace")
                 code = javascriptGenerator.workspaceToCode(workspace);
                 Blockly.Events.enable();
             }
@@ -46,7 +48,7 @@
         });
 
         $effect(() => {
-            console.log(`${highlightBlock} (${typeof highlightBlock})`)
+            // console.log(`${highlightBlock} (${typeof highlightBlock})`)
             workspace.highlightBlock(highlightBlock)
         })
     }

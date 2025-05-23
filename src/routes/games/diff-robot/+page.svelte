@@ -1,156 +1,138 @@
 <script lang="ts">
-import info from './info.md?raw'
+    import '$lib/style/blockly.css'
+    import info from './info.md?raw'
 
-import Blockly from "$lib/components/Blockly.svelte";
-import { Robot, CodeRunner, ringBorder, ringRadius } from "$lib/diff-robot/control.svelte";
-import { marked } from 'marked';
-import DiagonalJoystick from '$lib/components/DiagonalJoystick.svelte';
-import { untrack } from 'svelte';
-import { Tabs } from 'melt/builders'
+    import { Robot, CodeRunner, ringBorder, ringRadius } from "$lib/diff-robot/control.svelte";
+    import { marked } from 'marked';
+    import DiagonalJoystick from '$lib/components/DiagonalJoystick.svelte';
+    import { untrack } from 'svelte';
+    import { Tabs } from 'melt/builders'
 
-import Copy from '~icons/hugeicons/copy-01'
-import Flag from '~icons/hugeicons/flag-02'
-import Stop from '~icons/hugeicons/octagon'
-import Puzzle from '~icons/hugeicons/puzzle'
-import Save from '~icons/hugeicons/floppy-disk'
-import Open from '~icons/hugeicons/folder-open'
-import Info from '~icons/hugeicons/information-circle'
-import FullScreen from '~icons/hugeicons/full-screen'
+    import Flag from '~icons/hugeicons/flag-02'
+    import Stop from '~icons/hugeicons/octagon'
+    import Puzzle from '~icons/hugeicons/puzzle'
+    import Save from '~icons/hugeicons/floppy-disk'
+    import Open from '~icons/hugeicons/folder-open'
+    import Info from '~icons/hugeicons/information-circle'
+    import FullScreen from '~icons/hugeicons/full-screen'
+    import { createBlockly } from '$lib/components/blockly-init';
+    import { BLOCKS, GENERATORS, TOOLBOX } from '$lib/components/blockly-defs';
+    import { createPencil } from '$lib/diff-robot/pencil.svelte';
 
-const CANVAS_W = 600
-const CANVAS_H = 300
+    const CANVAS_W = 600
+    const CANVAS_H = 300
 
-let penDown = $state(true)
+    let code: string = $state("");
+    let fullscreen: boolean = $state(false);
 
-let code: string = $state("");
-let blocklyState: string = $state("null");
-let highlightBlock: string | null = $state(null);
-let fullscreen: boolean = $state(false);
-
-let paintCtx: CanvasRenderingContext2D | undefined = undefined;
-
-const robot = new Robot()
-const codeRunner = new CodeRunner(robot, (id) => {
-    highlightBlock = id
-});
-
-$effect(() => { robot.penDown = penDown })
-$effect(() => {
-    if (blocklyState != "null")
-        localStorage.setItem("blocky-temp", blocklyState)
-})
-
-function runCode() {
-    reset()
-    codeRunner.runCode(code)
-}
-
-function copyToClipboard() {
-    navigator.clipboard.writeText(blocklyState)
-}
-
-const twoDigits = (n: number) => ("0" + n).slice(-2)
-
-function downloadFile() {
-    const now = new Date() 
-    const year = "" + now.getFullYear()
-    const month = twoDigits(now.getMonth() + 1)
-    const day = twoDigits(now.getDate())
-    const hour = twoDigits(now.getHours())
-    const min = twoDigits(now.getMinutes())
-    const sec = twoDigits(now.getSeconds())
-
-    const stateBlob = new Blob([blocklyState])
-    
-    const a = document.createElement("a")
-
-    a.href = URL.createObjectURL(stateBlob)
-    a.download = `bloques-${year}${month}${day}${hour}${min}${sec}.json`
-    document.body.appendChild(a);
-
-    a.click()
-
-    document.body.removeChild(a);
-    URL.revokeObjectURL(a.href);
-}
-
-function openFile(e: Event) {
-    if (!(e.target instanceof HTMLInputElement)) return
-
-    const file = e.target.files?.[0]
-
-    if (!file) return
-
-    const reader = new FileReader()
-
-    reader.onload = (e) => {
-        const res = (e.target?.result)?.toString()
-        if (res) {
-            blocklyState = res
-        } 
-    }
-
-    reader.readAsText(file)
-}
-
-function reset() {
-    codeRunner.stop()
-    robot.reset()
-
-    paintCtx?.clearRect(0, 0, CANVAS_W, CANVAS_H)
-}
-
-function toggleFullscreen() {
-    fullscreen = !fullscreen
-}
-
-const FRAME_TIME = 16.66
-$effect(() => {
-    blocklyState = localStorage.getItem("blocky-temp") ?? "null"
-    // code = localStorage.getItem("blocky-temp-code") ?? ""
-
-    let lastTime = 0
-    let simuElapsed = 0
-    
-    const update = (elapsed: number) => {
-        const prevX = robot.positionX;
-        const prevY = robot.positionY;
-        while (simuElapsed < elapsed) {
-            while(codeRunner.step()) {}
-            simuElapsed += robot.step(FRAME_TIME / 1000) * 1000
-        }
-
-        if (paintCtx) {
-            const x = robot.positionX + CANVAS_W / 2;
-            const y = robot.positionY + CANVAS_H / 2;
-    
-            if (robot.penDown) {
-                paintCtx.strokeStyle = "#ff0044ff";
-                paintCtx.lineWidth = 3;
-                paintCtx.beginPath()
-                paintCtx.moveTo(prevX + CANVAS_W / 2, prevY + CANVAS_H / 2)
-                paintCtx.lineTo(x, y)
-                paintCtx.stroke()
-            }
-        }
-
-        lastTime = elapsed
-
-        requestAnimationFrame(update)
-    }
-
-    untrack(() => {
-        update(lastTime);
+    const blockly = createBlockly({
+        blockDefs: BLOCKS,
+        generators: GENERATORS,
+        toolboxXML: TOOLBOX,
+        onChange(state, nextCode) {
+            localStorage.setItem("blocky-temp", state)
+            code = nextCode
+            console.log("changed")
+            console.log(code)
+        },
     })
-})
 
-function paintCanvas(node: HTMLCanvasElement) {
-    paintCtx = node.getContext("2d")!;
-}
+    const robot = new Robot()
+    const codeRunner = new CodeRunner(robot, (id) => {
+        blockly.highlightBlock(id)
+    });
 
-const tabs = new Tabs<"blocks" | "info">({
-    value: "blocks"
-})
+    const pencil = createPencil(robot, CANVAS_W, CANVAS_H)
+
+    function runCode() {
+        reset()
+        codeRunner.runCode(code)
+    }
+
+    const twoDigits = (n: number) => ("0" + n).slice(-2)
+
+    function downloadFile() {
+        const now = new Date() 
+        const year = "" + now.getFullYear()
+        const month = twoDigits(now.getMonth() + 1)
+        const day = twoDigits(now.getDate())
+        const hour = twoDigits(now.getHours())
+        const min = twoDigits(now.getMinutes())
+        const sec = twoDigits(now.getSeconds())
+
+        const stateBlob = new Blob([localStorage.getItem("blocky-temp") ?? "null"])
+        
+        const a = document.createElement("a")
+
+        a.href = URL.createObjectURL(stateBlob)
+        a.download = `bloques-${year}${month}${day}${hour}${min}${sec}.json`
+        document.body.appendChild(a);
+
+        a.click()
+
+        document.body.removeChild(a);
+        URL.revokeObjectURL(a.href);
+    }
+
+    function openFile(e: Event) {
+        if (!(e.target instanceof HTMLInputElement)) return
+
+        const file = e.target.files?.[0]
+
+        if (!file) return
+
+        const reader = new FileReader()
+
+        console.log("file gets loaded")
+
+        reader.onload = (e) => {
+            const res = (e.target?.result)?.toString()
+            if (res) {
+                blockly.loadWorkspace(res)
+                console.log("state gets changed")
+            } 
+        }
+
+        reader.readAsText(file)
+    }
+
+    function reset() {
+        codeRunner.stop()
+        robot.reset()
+
+        pencil.reset()
+    }
+
+    function toggleFullscreen() {
+        fullscreen = !fullscreen
+    }
+
+    const FRAME_TIME = 16.66
+    $effect(() => {
+        blockly.loadWorkspace(localStorage.getItem("blocky-temp") ?? "null")
+
+        let lastTime = 0
+        let simuElapsed = 0
+        
+        const update = (elapsed: number) => {
+            while (simuElapsed < elapsed) {
+                while(codeRunner.step()) {}
+                simuElapsed += robot.step(FRAME_TIME / 1000) * 1000
+            }
+
+            lastTime = elapsed
+
+            requestAnimationFrame(update)
+        }
+
+        untrack(() => {
+            update(lastTime);
+        })
+    })
+
+    const tabs = new Tabs<"blocks" | "info">({
+        value: "blocks"
+    })
 </script>
 
 <main class={{ fullscreen }}>
@@ -166,11 +148,7 @@ const tabs = new Tabs<"blocks" | "info">({
             </button>
         </div>
         <div {...tabs.getContent("blocks")}>
-            <Blockly 
-                bind:value={blocklyState}
-                bind:code={code} 
-                {highlightBlock}
-            />
+            <div class="blockly" {@attach blockly.attach}></div>
         </div>
         <div class="info-content" {...tabs.getContent("info")}>
             <article>
@@ -211,7 +189,10 @@ const tabs = new Tabs<"blocks" | "info">({
                     cx="0" cy="0" r={ringRadius}
                 ></circle>
             </svg>
-            <canvas use:paintCanvas width={CANVAS_W} height={CANVAS_H}></canvas>
+            <canvas 
+                {@attach pencil.attach}
+                width={CANVAS_W} height={CANVAS_H}
+            ></canvas>
             <svg viewBox="-{CANVAS_W / 2} -{CANVAS_H / 2} {CANVAS_W} {CANVAS_H}">
                 <g transform="translate({robot.positionX} {robot.positionY}) rotate({robot.rotation / Math.PI * 180})">
                     <path
@@ -246,8 +227,8 @@ const tabs = new Tabs<"blocks" | "info">({
             <div class="bar" style="--value: {Math.abs(robot.powerR)}"></div>
         </div>
         <label class="plastic pencil">
-            <div class={["toggle", "surface-colors", {"palette-evil": !penDown, "palette-secondary": penDown}]}>
-                <input type="checkbox" bind:checked={penDown}>
+            <div class={["toggle", "surface-colors", {"palette-evil": !robot.penDown, "palette-secondary": robot.penDown}]}>
+                <input type="checkbox" bind:checked={robot.penDown}>
                 <div class="thumb"></div>
             </div>
             Activar lapiz
@@ -255,7 +236,7 @@ const tabs = new Tabs<"blocks" | "info">({
     </div>
 </main>
 
-<style lang="less">
+<style>
 main {
     display: grid;
     grid-template-columns: 1fr min-content;
@@ -278,7 +259,6 @@ main {
 
         & .view-container, & canvas {
             width: 100%;
-            // height: 100%;
         }
     }
 }
@@ -294,14 +274,18 @@ main {
         width: 100%;
         height: 100%;
     }*/
-    :global(.info-content) {
+    & :global(.info-content) {
         overflow: auto;
     }
-    :global([role="tabpanel"]) {
+    & :global([role="tabpanel"]) {
         border-top: 1px solid var(--border);
         grid-row: span 2;
     }
-    article {
+    & .blockly {
+        width: 100%;
+        height: 100%;
+    }
+    & article {
         padding: 0 5rem 5rem 5rem;
         margin: 0 auto;
     }
@@ -329,7 +313,7 @@ main {
     justify-content: end;
     height: min-content;
 
-    .expand {
+    & .expand {
         flex-grow: 1;
     }
 }
@@ -392,15 +376,16 @@ main {
     position: relative;
     width: var(--width);
     height: var(--height);
-    margin: calc((var(--thumb-size) - var(--height)) / 2)
-}
-.toggle input {
-    position: fixed;
-    left: -100%;
-    top: -100%;
-    visibility: hidden;
-    width: 0;
-    height: 0;
+    margin: calc((var(--thumb-size) - var(--height)) / 2);
+
+    & input {
+        position: fixed;
+        left: -100%;
+        top: -100%;
+        visibility: hidden;
+        width: 0;
+        height: 0;
+    }
 }
 .thumb {
     --offset: calc((var(--height) - var(--thumb-size)) / 2 - var(--border));
